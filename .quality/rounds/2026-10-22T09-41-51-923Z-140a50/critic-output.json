@@ -1,0 +1,35 @@
+{
+  "views": [
+    {
+      "view": "top_down",
+      "score": 5.5,
+      "evidence": "Species silhouettes and the bee's scale relative to the sunflower are plausible. However, a strong gray wash flattens color and depth. Flowers appear evenly spaced and similarly face-on over visibly repeating ground texture. Repeated radial petals and weak contact shadows give the arrangement a synthetic appearance."
+    },
+    {
+      "view": "macro_closeup",
+      "score": 6,
+      "evidence": "The segmented abdomen, dark eye, antennae and pollen load identify a honeybee. Thorax hairs form conspicuous concentric, combed ridges rather than soft irregular fuzz. Wings read as pale overlapping strips with little legible venation. Legs resemble straight rods with simplified feet. The sunflower center resembles repeated rounded pebbles, surrounded by angular yellow pieces; petals show repetitive texture and shape."
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 5.5,
+      "evidence": "A visible gap separates the abdomen from the flower, and several legs reach the disk without an obvious major body penetration. Far-side legs and their contact points remain obscured, limiting verification of six-leg support. Wings nearly disappear against the sky. The foreground exposes a conspicuous ring of repeated angular florets and dangling oval elements above a dark slab-like base, undermining botanical realism."
+    },
+    {
+      "view": "wireframe",
+      "score": 4,
+      "evidence": "Petal triangulation is visible without obvious extreme stretching in the exposed outer surfaces. However, dense overlapping edges, bright white petal lines and dark disk geometry overwhelm the bee. Wing boundaries, body joins and individual foot contacts cannot be traced reliably. This screenshot does not provide sufficiently legible evidence of mesh continuity or intersections in the critical thin structures."
+    }
+  ],
+  "blockers": [
+    "Wireframe evidence is present but insufficiently legible to assess wing continuity, bee body joins and leg-to-flower intersections reliably."
+  ],
+  "repairs": [
+    "Priority 1: Improve the wireframe diagnostic with subdued edges, reduced background prominence and a closer oblique framing that preserves the actual scene geometry while exposing wings, body joins and foot contacts.",
+    "Priority 2: Replace the sunflower's repeated pebble-like disk and angular peripheral pieces with smaller, varied tubular florets following coherent spiral growth; integrate their bases into a continuous receptacle.",
+    "Priority 3: Give bee hair varied length, direction and density; remove concentric ridging. Refine articulated legs, tapered tarsi and hind-leg pollen attachment.",
+    "Priority 4: Make thin wing membranes and branching veins readable under the scene lighting; avoid the current pale-strip appearance.",
+    "Priority 5: Expose all six support paths through a better low-angle camera azimuth, then verify foot placement against the visible floret surface.",
+    "Priority 6: Reduce the overhead gray wash, strengthen localized depth and contact shading, break ground-texture repetition, and vary flower orientation and petal shape."
+  ]
+}

@@ -13,7 +13,14 @@
 - `assets/`：兩組原始 PNG 材質圖集、WebP 版本、內嵌材質模組與生成提示詞。
 - `vendor/three/`：Three.js 0.160.0 和使用的附加模組，附 MIT 授權。
 - `previews/`：實際瀏覽器渲染的蜜蜂與各花種檢查圖。
-- `bee_scene.original.html.bak`：修改前的原始檔備份。
+- `backups/`：各階段的 `bee_scene.html` 備份（`original` 修改前原始檔、`before-refinement`、`before-critic`）。
+- `.buildtools/`：打包與驗證工具（esbuild 0.25.5 Windows 版、四視角擷取、評審循環與行為驗證腳本）。
+- `.quality/`：評審流程說明、報告與各輪截圖紀錄。
+- `.github/workflows/pages.yml`：發佈到 GitHub Pages 的工作流程。
+
+## GitHub Pages
+
+推送到預設分支後，`.github/workflows/pages.yml` 會把 `bee_scene.html`（作為首頁 `index.html`）、`bee_scene_standalone.html`、`vendor/` 與 `assets/texture-data.js` 發佈到 `https://malilion.github.io/bee_scene/`。第一次使用前需在 GitHub 的 **Settings → Pages → Build and deployment → Source** 選擇 **GitHub Actions**；免費帳號的私人儲存庫無法使用 Pages，需先改為公開。
 
 修改來源或材質模組後，執行 `./build-scene.ps1` 重新建立離線 HTML。打包工具已置於 `.buildtools/`；建置本身不需連網。
 

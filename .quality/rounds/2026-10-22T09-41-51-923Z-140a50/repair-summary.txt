@@ -1,0 +1,9 @@
+Updated only `bee_scene.html`:
+
+- Rebuilt sunflower florets as smaller, integrated tubes.
+- Randomized bee fuzz; refined legs, feet, and pollen attachment.
+- Added curved wing membranes and raised branching veins.
+- Reduced haze and ground repetition; varied flowers and petals.
+- Improved diagnostic framing and subdued wireframe edges without hiding geometry.
+
+JavaScript syntax check passed. Controls and simulation logic remain intact. Six-foot visibility, intersections, and final appearance await the parent runner’s capture and review; no build, render, or critics were invoked.

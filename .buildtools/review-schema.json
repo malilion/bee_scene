@@ -1,0 +1,17 @@
+{
+  "type":"object","additionalProperties":false,
+  "required":["views","blockers","repairs"],
+  "properties":{
+    "views":{"type":"array","minItems":4,"maxItems":4,"items":{
+      "type":"object","additionalProperties":false,
+      "required":["view","score","evidence"],
+      "properties":{
+        "view":{"type":"string","enum":["top_down","macro_closeup","low_angle_anti_clip","wireframe"]},
+        "score":{"type":"number","minimum":0,"maximum":10},
+        "evidence":{"type":"string"}
+      }
+    }},
+    "blockers":{"type":"array","items":{"type":"string"}},
+    "repairs":{"type":"array","items":{"type":"string"}}
+  }
+}

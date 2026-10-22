@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-22",
+  "qualityGateContractChecks": {"passed": 17, "syntheticFixturesOnly": true},
+  "runnerFailureChecks": {"missingExecutableCaught": true, "nonzeroChildExitCaught": true},
+  "behavior": {"passed": true, "randomizedWorlds": 3, "flowerStances": 18, "simulatedSeconds": 540, "pauseSelectionMobileLayout": true},
+  "realAutomaticLoop": {
+    "firstRound": "2026-10-22T09-41-51-923Z-140a50",
+    "firstMean": 5.25,
+    "automaticRepairCompleted": true,
+    "secondRound": "2026-10-22T09-58-08-894Z-cfbbcf",
+    "secondMean": 6.125,
+    "status": "rejected",
+    "note": "This invocation used MaxRounds 2 to exercise the round-limit branch. The default is 3. No visual approval granted."
+  }
+}

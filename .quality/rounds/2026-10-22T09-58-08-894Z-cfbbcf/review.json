@@ -1,0 +1,45 @@
+{
+  "views": [
+    {
+      "view": "top_down",
+      "score": 7,
+      "evidence": "Six flower types are recognizable, with convincing lily markings and some petal curvature. Sunflower and daisy petals remain conspicuously regular radial repetitions; the sunflower disk has harsh stippled aliasing. Sparse grass over mottled, visibly tiled ground weakens the natural composition. Bee scale appears plausible, but its tiny silhouette offers little anatomical detail.",
+      "imageSha256": "5259907a3f6f2b85cf500ad879a5cbf974a592278711c30494767c7bc7255dd0"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 6,
+      "evidence": "The bee has recognizable eyes, thoracic hair, abdominal bands, wing veins and a pollen load. Hair forms an overly uniform halo of straight straw-like strands; eyes and exposed appendages resemble smooth plastic primitives. The abdomen reads as a textured egg rather than articulated segments. Repeated pale pointed florets with deep black gaps dominate the sunflower disk. The long rigid appendage extending down-left from the head is anatomically unclear.",
+      "imageSha256": "1c5d8972e3eaa644e3f5a78e714503121cf27e9aa359df499d6c58151fc02d6b"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 5.5,
+      "evidence": "The main body clears the flower surface, with no unambiguous major body penetration visible. However, far-side legs are concealed and visible foot tips disappear among tall florets, preventing verification of six-leg support. Near-side legs use abrupt cylindrical joints and sparse foot articulation. The rigid head appendage projects far forward, while the pollen-bearing hind leg appears suspended without a readable support relationship.",
+      "imageSha256": "71f971e6ded5904df1f8410ed910a206543617fd231122618bba9ebdac2cd4aa"
+    },
+    {
+      "view": "wireframe",
+      "score": 6,
+      "evidence": "Visible body shells and petal grids appear continuous, without obvious exploded triangles. The thorax and abdomen remain intersecting ellipsoidal primitives with little anatomical transition or abdominal segmentation. Overlapping wing outlines obscure membrane and root relationships. Hidden legs cannot be traced completely, and the shaded flower surface conceals foot endpoints, limiting intersection assessment.",
+      "imageSha256": "e039e64bd9fb0a5fda5cfb2ffc17238ec61327ef7cee0965bf35a10e92538ecb"
+    }
+  ],
+  "blockers": [
+    "The low-angle evidence does not allow all six legs and their contact relationships to be traced: far-side legs are occluded and foot endpoints disappear into the floret field. The wireframe view does not resolve this inspection gap."
+  ],
+  "repairs": [
+    "Priority 1: Adjust the inspection angle and leg pose so all six legs can be traced from thorax to foot across the diagnostic evidence. Expose actual contacts and check them against individual floret geometry.",
+    "Priority 2: Replace rod-like appendages with tapered, articulated antennae and legs, including recognizable tarsi. Give the long head appendage a clear anatomical form and believable feeding placement.",
+    "Priority 3: Shape distinct abdominal segments and refine head, thorax and abdomen transitions. Vary hair length, density and direction; reduce the uniform spiky halo and plastic chitin appearance.",
+    "Priority 4: Refine paired wing silhouettes, root attachments and overlapping membranes so veins remain readable without doubled heavy outlines.",
+    "Priority 5: Replace uniform pointed disk elements with varied botanical florets, reduce black interstitial gaps and aliasing, and introduce restrained petal asymmetry, foliage and less visibly tiled ground."
+  ],
+  "roundId": "2026-10-22T09-58-08-894Z-cfbbcf",
+  "artifactSha256": "f7e3c6727d75964f333884f787aa4236b08ada43fbf10ccf64e83a8939dc94d8",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "codex exec read-only ephemeral",
+    "runId": "01a1630d-adde-7330-a60d-8fe4b3a49d30"
+  }
+}

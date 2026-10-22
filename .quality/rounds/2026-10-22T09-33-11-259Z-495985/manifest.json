@@ -1,0 +1,577 @@
+{
+  "roundId": "2026-10-22T09-33-11-259Z-495985",
+  "createdAt": "2026-10-22T09:34:48.485Z",
+  "artifact": "D:\\test\\bee_scene_standalone.html",
+  "artifactSha256": "56c026e122aafe8eac9d8ca6636fa2869304d1546f3b288e573671bf11b8e230",
+  "sourceHashes": {
+    "bee_scene.html": "6e096b82f246a1d616e3f90e0635296d25b1bf2869051542cb586773a0fb4af8",
+    "build-scene.ps1": "9c3624cda84e91548b6a441b80cd674e4895f0deb3f5c5b3e37a1bff5511bb26",
+    "assets/bee-and-leaf-atlas.png": "1f96f902b3d1d29dc668946e94d96fcbdbc1f90fcbc5fd16685e855c0342eb5c",
+    "assets/bee-and-leaf-atlas.webp": "c8ce414636a6a16b25e3402452bcea2bfa2d1e3c1849e95594954da87ebbdbe7",
+    "assets/botanical-petal-atlas.png": "b38477c2e5161f0e6d7185673ff75c676254d17de937bcbfbe2857003ddb6432",
+    "assets/botanical-petal-atlas.webp": "c97ca0a1d124a39d84fb76c311209b22d0943e248bafd9acfca37b6a3a55b986",
+    "assets/IMAGE_PROMPTS.md": "37094a33ff3cc42f7dca922897865fe3061de9ce8f105110dde5ce8ba047f4e4",
+    "assets/texture-data.js": "30f6e1d400f1160d8cba9107e8b17cb461eeb88e0242472152e3ac540b9c275a",
+    "vendor/three/addons/controls/OrbitControls.js": "5a44a9e86a2a0fb11933eed69bc2cd33c76a496854c1aed6ed776efa87d7b064",
+    "vendor/three/addons/postprocessing/BokehPass.js": "581ad606035764f92a6c5124980ddeb78c09cb076d2bdeb6c760ca9d0a8332ec",
+    "vendor/three/addons/postprocessing/EffectComposer.js": "d234e578618fa816955ebdc059c049c577e203e650e33cf22bde3f232c29e669",
+    "vendor/three/addons/postprocessing/MaskPass.js": "328cf7db0da5d9be83ffe39d54b01d5ac1fddf108cc98182ddbb056f5c8b537f",
+    "vendor/three/addons/postprocessing/OutputPass.js": "13817fc7a87f662d29d2c5e00f44d3a4588c9afac4a372de0cacb0e44e368ffd",
+    "vendor/three/addons/postprocessing/Pass.js": "b3c6128340eaa37e40a6a2f1b738e894c855239417d50959759b34a2b5e89f92",
+    "vendor/three/addons/postprocessing/RenderPass.js": "1c90c085312871c4bcdccfcf519499c6276dd503363fcf7cb7f703add45cf4a2",
+    "vendor/three/addons/postprocessing/ShaderPass.js": "3b28a1ee27e0eb96c0eab137a1f442ccf127a926904eced2d51e125ec44af781",
+    "vendor/three/addons/postprocessing/UnrealBloomPass.js": "8f09315c0cec117a0ca2494d3e3586035b3c4323d6dcb037537cc51b04c3cdba",
+    "vendor/three/addons/shaders/BokehShader.js": "a6558cc4baf2c372c192828e9fffcf088d22f80291ac72a13a5be6d3b7a18ddc",
+    "vendor/three/addons/shaders/CopyShader.js": "4e3346db194db56a596cd074e9bdb39fb5eb52040c333e0d29dc4eb1324d3b1d",
+    "vendor/three/addons/shaders/LuminosityHighPassShader.js": "3d841cc594a0c1767d1b0185720b32761a0133c5f1b70b56658e28f2fb9b7900",
+    "vendor/three/addons/shaders/OutputShader.js": "53a52e430c27bc36ceaab8ae90a2b4af7b02672d7ee4b29d6ba3c28e09c92c2a",
+    "vendor/three/LICENSE": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+    "vendor/three/three.module.js": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
+  },
+  "viewport": {
+    "width": 1280,
+    "height": 960
+  },
+  "seed": 7331,
+  "flowerIndex": 0,
+  "pose": "FORAGING",
+  "images": [
+    {
+      "view": "top_down",
+      "path": "D:\\test\\.quality\\rounds\\2026-10-22T09-33-11-259Z-495985\\top_down.png",
+      "sha256": "d8a5204930e3acdc4949a312613923fe652c56043b2d0b5f865a0f7c2c140feb",
+      "diagnostics": {
+        "mode": "FORAGING",
+        "camera": "diagnostic",
+        "paused": false,
+        "targetFlower": 0,
+        "pollenLoad": 2.6,
+        "hiveFilled": 0,
+        "beeScale": 0.28,
+        "legs": 6,
+        "antennae": 2,
+        "flowers": [
+          {
+            "name": "向日葵 (Helianthus annuus)",
+            "species": "sunflower",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -1.14173165002897,
+              4.660954278651208,
+              -1.8748839647272082
+            ]
+          },
+          {
+            "name": "紫錐菊 (Echinacea purpurea)",
+            "species": "echinacea",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              0.8149524335513699,
+              4.084450782218176,
+              3.4728882158394443
+            ]
+          },
+          {
+            "name": "觀星者百合 (Lilium Stargazer)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              5.792434482007467,
+              4.828076454963211,
+              1.1383604729883214
+            ]
+          },
+          {
+            "name": "法國濱菊 (Leucanthemum)",
+            "species": "daisy",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              3.8338817909250142,
+              3.974125936254103,
+              -4.510018186308871
+            ]
+          },
+          {
+            "name": "山百合 (Lilium auratum)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -3.2377802871892367,
+              3.950645437787609,
+              4.453382953858292
+            ]
+          },
+          {
+            "name": "粉紅波斯菊 (Cosmos bipinnatus)",
+            "species": "cosmos",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              6.572502487022042,
+              3.179989524552689,
+              5.2449929501981725
+            ]
+          }
+        ],
+        "position": [
+          -1.3382940528065133,
+          4.814482363286092,
+          -1.754753257807588
+        ],
+        "wingAngles": [
+          1.48,
+          -1.48
+        ],
+        "wingBlurVisible": 0,
+        "footContacts": [
+          {
+            "side": -1,
+            "index": 0,
+            "clearance": 0.0000014494288945177125
+          },
+          {
+            "side": 1,
+            "index": 0,
+            "clearance": 0.0000021367999065158294
+          },
+          {
+            "side": -1,
+            "index": 1,
+            "clearance": 0.000011610542880180486
+          },
+          {
+            "side": 1,
+            "index": 1,
+            "clearance": 0.00000784609913101475
+          },
+          {
+            "side": -1,
+            "index": 2,
+            "clearance": -0.0000033604909251416792
+          },
+          {
+            "side": 1,
+            "index": 2,
+            "clearance": 0.000012206618485610665
+          }
+        ],
+        "materialsReady": "true",
+        "framedFlower": null,
+        "beeScreenPosition": [
+          -0.2205492670641439,
+          0.36834925334014856,
+          0.9936629249733299
+        ],
+        "cameraAspect": 1.3333333333333333
+      }
+    },
+    {
+      "view": "macro_closeup",
+      "path": "D:\\test\\.quality\\rounds\\2026-10-22T09-33-11-259Z-495985\\macro_closeup.png",
+      "sha256": "96497d7b1396d00d84b05e2a91237d3d6871b5315fcfbc44294a1f12dc6c2055",
+      "diagnostics": {
+        "mode": "FORAGING",
+        "camera": "diagnostic",
+        "paused": false,
+        "targetFlower": 0,
+        "pollenLoad": 2.6,
+        "hiveFilled": 0,
+        "beeScale": 0.28,
+        "legs": 6,
+        "antennae": 2,
+        "flowers": [
+          {
+            "name": "向日葵 (Helianthus annuus)",
+            "species": "sunflower",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -1.14173165002897,
+              4.660954278651208,
+              -1.8748839647272082
+            ]
+          },
+          {
+            "name": "紫錐菊 (Echinacea purpurea)",
+            "species": "echinacea",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              0.8149524335513699,
+              4.084450782218176,
+              3.4728882158394443
+            ]
+          },
+          {
+            "name": "觀星者百合 (Lilium Stargazer)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              5.792434482007467,
+              4.828076454963211,
+              1.1383604729883214
+            ]
+          },
+          {
+            "name": "法國濱菊 (Leucanthemum)",
+            "species": "daisy",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              3.8338817909250142,
+              3.974125936254103,
+              -4.510018186308871
+            ]
+          },
+          {
+            "name": "山百合 (Lilium auratum)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -3.2377802871892367,
+              3.950645437787609,
+              4.453382953858292
+            ]
+          },
+          {
+            "name": "粉紅波斯菊 (Cosmos bipinnatus)",
+            "species": "cosmos",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              6.572502487022042,
+              3.179989524552689,
+              5.2449929501981725
+            ]
+          }
+        ],
+        "position": [
+          -1.3382940528065133,
+          4.814482363286092,
+          -1.754753257807588
+        ],
+        "wingAngles": [
+          1.48,
+          -1.48
+        ],
+        "wingBlurVisible": 0,
+        "footContacts": [
+          {
+            "side": -1,
+            "index": 0,
+            "clearance": 0.0000014494288945177125
+          },
+          {
+            "side": 1,
+            "index": 0,
+            "clearance": 0.0000021367999065158294
+          },
+          {
+            "side": -1,
+            "index": 1,
+            "clearance": 0.000011610542880180486
+          },
+          {
+            "side": 1,
+            "index": 1,
+            "clearance": 0.00000784609913101475
+          },
+          {
+            "side": -1,
+            "index": 2,
+            "clearance": -0.0000033604909251416792
+          },
+          {
+            "side": 1,
+            "index": 2,
+            "clearance": 0.000012206618485610665
+          }
+        ],
+        "materialsReady": "true",
+        "framedFlower": null,
+        "beeScreenPosition": [
+          -0.07506932749508304,
+          0.08834747438469495,
+          0.9323343195914513
+        ],
+        "cameraAspect": 1.3333333333333333
+      }
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "path": "D:\\test\\.quality\\rounds\\2026-10-22T09-33-11-259Z-495985\\low_angle_anti_clip.png",
+      "sha256": "096558986629bace77e292a6d0fd90a443b0633e42a0ae145f80f078f139d92c",
+      "diagnostics": {
+        "mode": "FORAGING",
+        "camera": "diagnostic",
+        "paused": false,
+        "targetFlower": 0,
+        "pollenLoad": 2.6,
+        "hiveFilled": 0,
+        "beeScale": 0.28,
+        "legs": 6,
+        "antennae": 2,
+        "flowers": [
+          {
+            "name": "向日葵 (Helianthus annuus)",
+            "species": "sunflower",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -1.14173165002897,
+              4.660954278651208,
+              -1.8748839647272082
+            ]
+          },
+          {
+            "name": "紫錐菊 (Echinacea purpurea)",
+            "species": "echinacea",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              0.8149524335513699,
+              4.084450782218176,
+              3.4728882158394443
+            ]
+          },
+          {
+            "name": "觀星者百合 (Lilium Stargazer)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              5.792434482007467,
+              4.828076454963211,
+              1.1383604729883214
+            ]
+          },
+          {
+            "name": "法國濱菊 (Leucanthemum)",
+            "species": "daisy",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              3.8338817909250142,
+              3.974125936254103,
+              -4.510018186308871
+            ]
+          },
+          {
+            "name": "山百合 (Lilium auratum)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -3.2377802871892367,
+              3.950645437787609,
+              4.453382953858292
+            ]
+          },
+          {
+            "name": "粉紅波斯菊 (Cosmos bipinnatus)",
+            "species": "cosmos",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              6.572502487022042,
+              3.179989524552689,
+              5.2449929501981725
+            ]
+          }
+        ],
+        "position": [
+          -1.3382940528065133,
+          4.814482363286092,
+          -1.754753257807588
+        ],
+        "wingAngles": [
+          1.48,
+          -1.48
+        ],
+        "wingBlurVisible": 0,
+        "footContacts": [
+          {
+            "side": -1,
+            "index": 0,
+            "clearance": 0.0000014494288945177125
+          },
+          {
+            "side": 1,
+            "index": 0,
+            "clearance": 0.0000021367999065158294
+          },
+          {
+            "side": -1,
+            "index": 1,
+            "clearance": 0.000011610542880180486
+          },
+          {
+            "side": 1,
+            "index": 1,
+            "clearance": 0.00000784609913101475
+          },
+          {
+            "side": -1,
+            "index": 2,
+            "clearance": -0.0000033604909251416792
+          },
+          {
+            "side": 1,
+            "index": 2,
+            "clearance": 0.000012206618485610665
+          }
+        ],
+        "materialsReady": "true",
+        "framedFlower": null,
+        "beeScreenPosition": [
+          -0.10282604256830452,
+          0.004991566003886047,
+          0.9456108909220907
+        ],
+        "cameraAspect": 1.3333333333333333
+      }
+    },
+    {
+      "view": "wireframe",
+      "path": "D:\\test\\.quality\\rounds\\2026-10-22T09-33-11-259Z-495985\\wireframe.png",
+      "sha256": "aae297845426537039352b05b69fb6d5930ddd9a81544865767fd47a2e8b4811",
+      "diagnostics": {
+        "mode": "FORAGING",
+        "camera": "diagnostic",
+        "paused": false,
+        "targetFlower": 0,
+        "pollenLoad": 2.6,
+        "hiveFilled": 0,
+        "beeScale": 0.28,
+        "legs": 6,
+        "antennae": 2,
+        "flowers": [
+          {
+            "name": "向日葵 (Helianthus annuus)",
+            "species": "sunflower",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -1.14173165002897,
+              4.660954278651208,
+              -1.8748839647272082
+            ]
+          },
+          {
+            "name": "紫錐菊 (Echinacea purpurea)",
+            "species": "echinacea",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              0.8149524335513699,
+              4.084450782218176,
+              3.4728882158394443
+            ]
+          },
+          {
+            "name": "觀星者百合 (Lilium Stargazer)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              5.792434482007467,
+              4.828076454963211,
+              1.1383604729883214
+            ]
+          },
+          {
+            "name": "法國濱菊 (Leucanthemum)",
+            "species": "daisy",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              3.8338817909250142,
+              3.974125936254103,
+              -4.510018186308871
+            ]
+          },
+          {
+            "name": "山百合 (Lilium auratum)",
+            "species": "lily",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              -3.2377802871892367,
+              3.950645437787609,
+              4.453382953858292
+            ]
+          },
+          {
+            "name": "粉紅波斯菊 (Cosmos bipinnatus)",
+            "species": "cosmos",
+            "nectar": 1,
+            "emissive": 0,
+            "position": [
+              6.572502487022042,
+              3.179989524552689,
+              5.2449929501981725
+            ]
+          }
+        ],
+        "position": [
+          -1.3382940528065133,
+          4.814482363286092,
+          -1.754753257807588
+        ],
+        "wingAngles": [
+          1.48,
+          -1.48
+        ],
+        "wingBlurVisible": 0,
+        "footContacts": [
+          {
+            "side": -1,
+            "index": 0,
+            "clearance": 0.0000014494288945177125
+          },
+          {
+            "side": 1,
+            "index": 0,
+            "clearance": 0.0000021367999065158294
+          },
+          {
+            "side": -1,
+            "index": 1,
+            "clearance": 0.000011610542880180486
+          },
+          {
+            "side": 1,
+            "index": 1,
+            "clearance": 0.00000784609913101475
+          },
+          {
+            "side": -1,
+            "index": 2,
+            "clearance": -0.0000033604909251416792
+          },
+          {
+            "side": 1,
+            "index": 2,
+            "clearance": 0.000012206618485610665
+          }
+        ],
+        "materialsReady": "true",
+        "framedFlower": null,
+        "beeScreenPosition": [
+          -4.0705667786715e-16,
+          0.13937598589832972,
+          0.9460138884853634
+        ],
+        "cameraAspect": 1.3333333333333333
+      }
+    }
+  ],
+  "errors": []
+}

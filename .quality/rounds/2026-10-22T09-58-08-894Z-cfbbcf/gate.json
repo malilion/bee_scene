@@ -1,0 +1,14 @@
+{
+  "roundId": "2026-10-22T09-58-08-894Z-cfbbcf",
+  "status": "rejected",
+  "mean": 6.125,
+  "issues": [
+    "Below 9 or invalid score: top_down",
+    "Below 9 or invalid score: macro_closeup",
+    "Below 9 or invalid score: low_angle_anti_clip",
+    "Below 9 or invalid score: wireframe",
+    "Unresolved blockers or missing blocker assessment"
+  ],
+  "review": "D:\\test\\.quality\\rounds\\2026-10-22T09-58-08-894Z-cfbbcf\\review.json",
+  "manifest": "D:\\test\\.quality\\rounds\\2026-10-22T09-58-08-894Z-cfbbcf\\manifest.json"
+}
