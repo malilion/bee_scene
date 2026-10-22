@@ -1,0 +1,13 @@
+{
+  "roundId": "2026-10-22T15-53-27-659Z-eb2e04",
+  "status": "rejected",
+  "mean": 6.875,
+  "issues": [
+    "Below 9 or invalid score: top_down",
+    "Below 9 or invalid score: macro_closeup",
+    "Below 9 or invalid score: low_angle_anti_clip",
+    "Below 9 or invalid score: wireframe"
+  ],
+  "review": "/Users/USER/bee_scene/.quality/rounds/2026-10-22T15-53-27-659Z-eb2e04/review.json",
+  "manifest": "/Users/USER/bee_scene/.quality/rounds/2026-10-22T15-53-27-659Z-eb2e04/manifest.json"
+}

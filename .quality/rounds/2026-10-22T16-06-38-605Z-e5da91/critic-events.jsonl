@@ -1,0 +1,16 @@
+Reading prompt from stdin...
+2026-10-22T16:08:14.445025Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-10-22T16:08:14.445049Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-10-22T16:08:14.498707Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+{"type":"thread.started","thread_id":"01a1645e-c34d-7321-b446-e85260b93bcb"}
+2026-10-22T16:08:14.905877Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-10-22T16:08:14.905896Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+{"type":"turn.started"}
+2026-10-22T16:08:15.775624Z  WARN codex_rmcp_client::oauth::refresh_transaction: MCP OAuth refresh token was rejected; reauthorization required error=OAuth refresh token was rejected: Server returned error response: invalid_grant: OAuth authorization context has expired
+2026-10-22T16:08:15.775656Z ERROR codex_rmcp_client::oauth::refresh_transaction: error=failed to refresh OAuth tokens for server hyper3d: OAuth refresh token was rejected: Server returned error response: invalid_grant: OAuth authorization context has expired
+2026-10-22T16:08:15.775664Z  WARN codex_rmcp_client::oauth::refresh_transaction: MCP OAuth refresh transaction failed server_name=hyper3d refresh_reason="expiry" error=failed to refresh OAuth tokens for server hyper3d: OAuth refresh token was rejected: Server returned error response: invalid_grant: OAuth authorization context has expired
+2026-10-22T16:08:15.775715Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="hyper3d" error=failed to refresh OAuth tokens for server hyper3d: OAuth refresh token was rejected: Server returned error response: invalid_grant: OAuth authorization context has expired: OAuth authorization required
+2026-10-22T16:08:16.175840Z  WARN codex_core::session::startup_prewarm: startup websocket prewarm setup failed: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 4:44 AM.
+{"type":"error","message":"You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 4:44 AM."}
+{"type":"turn.failed","error":{"message":"You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 4:44 AM."}}
+2026-10-22T16:08:21.417564Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: failed to refresh OAuth tokens for server hyper3d: OAuth refresh token was rejected: Server returned error response: invalid_grant: OAuth authorization context has expired: OAuth authorization required

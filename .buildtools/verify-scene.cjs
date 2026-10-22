@@ -11,7 +11,7 @@ const output = path.join(root, 'previews', 'refinement');
 async function main() {
   await fs.mkdir(output, { recursive: true });
   const browser = await chromium.launch({
-    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',
     headless: true, args: ['--use-angle=swiftshader', '--enable-webgl']
   });
   const page = await browser.newPage({ viewport: { width: 640, height: 480 } });
@@ -92,6 +92,9 @@ async function main() {
     await page.locator('#observe-flower').dispatchEvent('click');
     assert.equal(await page.evaluate(() => window.getSceneDiagnostics().camera), 'free');
     await page.setViewportSize({ width: 390, height: 844 });
+    // Chromium dispatches resize after the viewport command has returned.
+    // Wait for the renderer to consume it before measuring overflow.
+    await page.waitForFunction(() => document.querySelector('canvas').clientWidth === innerWidth, null, {polling:50});
     const layout = await page.locator('#observation-tools').evaluate(el => {
       const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, bottom: r.bottom, overflow: document.documentElement.scrollWidth > innerWidth };
     });

@@ -1,15 +1,6 @@
 {
-  "roundId": "2026-10-22T12-51-32Z-claude-r5",
-  "status": "rejected",
-  "mean": 7.375,
-  "scores": {
-    "top_down": 7.5,
-    "macro_closeup": 8,
-    "low_angle_anti_clip": 7,
-    "wireframe": 7
-  },
-  "blockerCount": 0,
-  "review": ".quality/rounds/2026-10-22T12-51-32Z-claude-r5/review.json",
-  "manifest": ".quality/rounds/2026-10-22T12-51-32Z-claude-r5/manifest.json",
-  "reviewer": "Claude subagent (independent, read-only)"
+  "roundId": "2026-10-22T16-06-38-605Z-e5da91",
+  "status": "error",
+  "manifest": "/Users/USER/bee_scene/.quality/rounds/2026-10-22T16-06-38-605Z-e5da91/manifest.json",
+  "error": "codex exited 1; see /Users/USER/bee_scene/.quality/rounds/2026-10-22T16-06-38-605Z-e5da91/critic-events.jsonl"
 }

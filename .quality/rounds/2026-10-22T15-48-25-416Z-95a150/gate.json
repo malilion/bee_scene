@@ -1,0 +1,13 @@
+{
+  "roundId": "2026-10-22T15-48-25-416Z-95a150",
+  "status": "rejected",
+  "mean": 7.125,
+  "issues": [
+    "Below 9 or invalid score: top_down",
+    "Below 9 or invalid score: macro_closeup",
+    "Below 9 or invalid score: low_angle_anti_clip",
+    "Below 9 or invalid score: wireframe"
+  ],
+  "review": "/Users/USER/bee_scene/.quality/rounds/2026-10-22T15-48-25-416Z-95a150/review.json",
+  "manifest": "/Users/USER/bee_scene/.quality/rounds/2026-10-22T15-48-25-416Z-95a150/manifest.json"
+}

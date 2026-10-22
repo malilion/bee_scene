@@ -1,0 +1,9 @@
+Updated only `bee_scene.html`:
+
+- Smaller closed buds and varied florets, with foot contact sampling.
+- Translucent wings, finer veins, clearer forewing/hindwing overlap.
+- Rounded head, stronger compound eyes, tapered legs, softer hair.
+- Broader, curved, overlapping petals and rooted grass tufts.
+- Flower mesh visibility and clearer diagnostic framing.
+
+Syntax and whitespace checks pass. Controls and behavior logic remain intact. Visual quality, contact accuracy, and performance await the parent runner’s capture and review; no approval is claimed.

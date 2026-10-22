@@ -1,0 +1,45 @@
+{
+  "views": [
+    {
+      "view": "top_down",
+      "score": 7,
+      "evidence": "Sunflower silhouette and bee-to-flower scale are plausible. Petals repeat broad rounded shapes with conspicuous angular folds; the disk looks densely stippled rather than botanically structured. Repeated grass tufts and flat olive ground weaken realism. Bee anatomy is very small at this framing.",
+      "imageSha256": "b86ba5045ebdc8cc0c80a10c118ede341e5e4ea75a7dcf3bba3d0167921a4862"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 6.5,
+      "evidence": "Recognizable segmented bee with antennae, compound-eye shapes, translucent wings and pollen load. Thorax resembles a uniform fuzzy ball; hairs form scratchy straight strokes across thorax and abdomen. Abdominal bands resemble rigid hoops, eyes lack convincing surface detail, and legs look cylindrical. Disk florets resemble rounded pebbles, while enlarged petals show faceting and repetitive striations.",
+      "imageSha256": "744aff41c17757ce0a36ae5426bb67524227ed4425d7360aec3a7d4fda2d2195"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 7,
+      "evidence": "Three legs on each side are readable, with feet appearing to meet the disk and no clear major body penetration. However, dark contact regions obscure precise foot seating. Symmetrical leg placement, straight rod-like segments and nearly identical exposed pollen masses look posed. Head reads as a flat shield with bead-like details; petal folds remain sharply geometric.",
+      "imageSha256": "3b171ea622e67d572e00ce1041e3ef2e840344f75510fcbab9dfc8709a019cda"
+    },
+    {
+      "view": "wireframe",
+      "score": 7,
+      "evidence": "Main body meshes appear continuous without obvious extreme stretching. Thin antennae, articulated legs and wing outlines are present. Dense overlapping body edges obscure junctions, far-side leg roots are hidden, and dark disk geometry makes contact intersections difficult to judge. Wing veins form conspicuous looping lines; their roots overlap the body silhouette and are difficult to distinguish individually.",
+      "imageSha256": "b3a40734cbe6b880187f4d2dbc84576af00a5e16d24fe766586bceb86f9e9c27"
+    }
+  ],
+  "blockers": [],
+  "repairs": [
+    "Replace the pebble-like sunflower disk with smaller, varied tubular florets arranged in coherent spirals, with a believable center-to-rim maturity transition.",
+    "Refine petal curvature and normals to remove triangular folds; vary width, taper, curl and overlap while reducing repetitive surface striping.",
+    "Improve bee anatomy: shape the thorax and abdominal segment transitions, refine mouthparts and joint taper, and add restrained compound-eye surface detail.",
+    "Replace uniform scratch-like hair with finer tapered fibers of varied length and direction, concentrated appropriately on thorax and abdominal bands.",
+    "Refine all six leg contacts and introduce natural stance asymmetry; shape pollen loads around the hind tibiae instead of presenting isolated matching ovals.",
+    "Make wing pairs and thoracic attachment points individually legible, with finer structured venation and subtler membrane shading.",
+    "Improve ground and grass variation, and provide a clearer wireframe presentation of leg roots, wing roots and foot contacts without hiding geometry."
+  ],
+  "roundId": "2026-10-22T15-53-27-659Z-eb2e04",
+  "artifactSha256": "9cf6c5bfde2e8a432cd618af04801aa09e89fe87c84455029897130d71f29ad4",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "codex exec read-only ephemeral",
+    "runId": "01a16452-a380-70c1-af40-c36ebf2fc340"
+  }
+}

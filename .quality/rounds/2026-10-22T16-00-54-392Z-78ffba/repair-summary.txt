@@ -1,0 +1,9 @@
+Updated only `bee_scene.html`:
+
+- Connected six leg roots with physical coxae and targeted resting claws onto floret crowns.
+- Added dense, evenly distributed short fur; softened abdomen texture and refined head/eyes.
+- Strengthened connected wing veins and hindwing attachments.
+- Varied petals, floret relief/colors, grass, and diagnostic framing.
+- Reduced wireframe clutter while retaining all geometry.
+
+Node syntax and whitespace checks passed. No build, render, or critics invoked. Contact accuracy, appearance, and performance remain unverified pending the parent’s capture and review.

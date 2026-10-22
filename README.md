@@ -107,9 +107,22 @@ npx serve -l 8765 .
 └── .github/workflows/pages.yml # GitHub Pages 發佈
 ```
 
-**開發流程**：修改 `bee_scene.html` 或 `assets/` 後，執行 `./build-scene.ps1` 重新產生 `index.html`。它會擷取俯視、蜂體特寫、低角度、線框四張圖交給獨立評審，**每張都須 ≥ 9/10** 才算通過，未通過會自動修正並重評（預設最多 3 輪，`-MaxRounds 6` 可調整）。需要 Node、Playwright、Chrome 與已登入的 Codex CLI；詳見 [.quality/WORKFLOW.md](.quality/WORKFLOW.md)，報告在 [.quality/report.html](.quality/report.html)。目前最新一輪評審（Claude 子代理）為**未通過**（平均 7.4，無阻擋問題）；評審紀錄見 `.quality/rounds/*-claude-r*`。
+**開發流程**：修改 `bee_scene.html` 或 `assets/` 後，執行 `./build-scene.ps1` 重新產生 `index.html`。它會擷取俯視、蜂體特寫、低角度、線框四張圖交給獨立評審，**每張都須 ≥ 9/10** 才算通過，未通過會自動修正並重評（預設最多 3 輪，`-MaxRounds 6` 可調整）。需要 Node、Playwright、Chrome 與已登入的 Codex CLI；詳見 [.quality/WORKFLOW.md](.quality/WORKFLOW.md)，報告在 [.quality/report.html](.quality/report.html)。目前視覺驗收尚未通過；最新狀態、各視角得分與阻擋問題請見 `.quality/latest.json` 及報告，歷輪證據保留於 `.quality/rounds/`。
 
 行為驗證：`.buildtools/verify-scene.cjs` 會跑三組隨機場景、十八項花面站姿與九分鐘模擬循環，結果輸出到 `previews/refinement/`。
+
+**macOS / Linux**：可直接用 Node 執行相同的建置、四視角擷取與獨立評審循環：
+
+```bash
+# esbuild、playwright 須可從 PATH / NODE_PATH 找到，也可明確指定。
+export ESBUILD_BINARY=/path/to/esbuild
+export NODE_PATH=/path/to/node_modules
+export CHROME_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+node .buildtools/quality-loop.cjs --max-rounds=3
+node .buildtools/verify-scene.cjs
+```
+
+`node .buildtools/bundle-scene.cjs` 僅打包離線版，不代表視覺驗收通過。
 
 ### GitHub Pages
 
@@ -225,9 +238,11 @@ Things to try: click flowers to choose where the bee goes, turn off auto cycle a
 └── .github/workflows/pages.yml # GitHub Pages deploy
 ```
 
-**Development**: after editing `bee_scene.html` or `assets/`, run `./build-scene.ps1` to regenerate `index.html`. It captures top-down, macro, low-angle and wireframe views and sends them to an independent reviewer; **every view must score ≥ 9/10** to pass, and failures are repaired and re-reviewed automatically (3 rounds by default, change with `-MaxRounds 6`). It needs Node, Playwright, Chrome and a signed-in Codex CLI; see [.quality/WORKFLOW.md](.quality/WORKFLOW.md), with the report at [.quality/report.html](.quality/report.html). The latest review round (Claude subagent) was **rejected** (mean 7.4, no blockers); see `.quality/rounds/*-claude-r*`.
+**Development**: after editing `bee_scene.html` or `assets/`, run `./build-scene.ps1` to regenerate `index.html`. It captures top-down, macro, low-angle and wireframe views and sends them to an independent reviewer; **every view must score ≥ 9/10** to pass, and failures are repaired and re-reviewed automatically (3 rounds by default, change with `-MaxRounds 6`). It needs Node, Playwright, Chrome and a signed-in Codex CLI; see [.quality/WORKFLOW.md](.quality/WORKFLOW.md), with the report at [.quality/report.html](.quality/report.html). Visual acceptance is still pending. See `.quality/latest.json` and the report for current per-view scores and blockers; all round evidence is retained under `.quality/rounds/`.
 
 Behavior checks: `.buildtools/verify-scene.cjs` runs three randomized worlds, eighteen flower stances and a nine-minute simulated loop, writing results to `previews/refinement/`.
+
+**macOS / Linux**: run `node .buildtools/quality-loop.cjs --max-rounds=3` for the same build, capture and independent review loop. Set `ESBUILD_BINARY` to the esbuild executable, `NODE_PATH` to the packages directory containing Playwright, and `CHROME_PATH` to Chrome (on macOS, `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`). Run `node .buildtools/verify-scene.cjs` for behavior checks. `node .buildtools/bundle-scene.cjs` only bundles the offline file; it does not grant visual approval.
 
 ### GitHub Pages
 

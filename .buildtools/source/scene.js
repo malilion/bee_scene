@@ -126,6 +126,7 @@
     sunLight.shadow.camera.bottom = -shadowBound;
     sunLight.shadow.bias = -0.00008;
     sunLight.shadow.normalBias = 0.004;
+    sunLight.shadow.radius = 3;
     scene.add(sunLight);
 
     // A small physical shadow frustum resolves tarsi and floret contact at bee scale.
@@ -242,40 +243,19 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      // 繪製數千根微細絨毛筆觸於腹部與背板邊緣
-      for (let i = 0; i < 6500; i++) {
-        const x = Math.random() * w;
-        const y = Math.random() * h;
-        const len = 5 + Math.random() * 7;
-        const dx = (Math.random() - 0.5) * 2.2;
-
-        // 在背板交界處繪製淡金絨毛 (Tomentum bands)
-        const ny = y / h;
-        const isGoldenHairZone =
-          (ny > 0.24 && ny < 0.31) ||
-          (ny > 0.52 && ny < 0.58) ||
-          (ny > 0.72 && ny < 0.78);
-
-        if (isGoldenHairZone && Math.random() < 0.75) {
-          ctx.strokeStyle = 'rgba(245, 200, 110, 0.38)';
-        } else if (Math.random() < 0.4) {
-          ctx.strokeStyle = 'rgba(210, 145, 50, 0.18)';
-        } else {
-          ctx.strokeStyle = 'rgba(20, 12, 6, 0.22)';
-        }
-        ctx.lineWidth = 1.1;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + dx, y + len);
-        ctx.stroke();
-
-        const bv = 100 + Math.floor(Math.random() * 145);
-        bCtx.strokeStyle = `rgb(${bv},${bv},${bv})`;
-        bCtx.lineWidth = 1.2;
-        bCtx.beginPath();
-        bCtx.moveTo(x, y);
-        bCtx.lineTo(x + dx, y + len);
-        bCtx.stroke();
+      // Smooth chitin plates carry microscopic pores; hair is actual geometry.
+      const bounds=[0,0.14,0.31,0.52,0.70,0.86,1];
+      bounds.slice(0,-1).forEach((a,i)=>{
+        const b=bounds[i+1],plate=ctx.createLinearGradient(0,a*h,0,b*h);
+        plate.addColorStop(0,i<4?'#9c713f':'#51402c');
+        plate.addColorStop(0.60,i<4?'#b38a54':'#62513a');
+        plate.addColorStop(0.78,'#55402a');plate.addColorStop(1,'#251d17');
+        ctx.fillStyle=plate;ctx.fillRect(0,a*h,w,(b-a)*h+1);
+      });
+      for(let i=0;i<18000;i++) {
+        const x=Math.random()*w,y=Math.random()*h;
+        ctx.fillStyle='rgba(30,22,15,0.065)';ctx.fillRect(x,y,0.65,0.65);
+        bCtx.fillStyle=Math.random()<0.5?'#797979':'#858585';bCtx.fillRect(x,y,0.8,0.8);
       }
 
       const colorMap = new THREE.CanvasTexture(colCanvas);
@@ -306,14 +286,15 @@
           g.addColorStop(1, '#222222');
           ctx.fillStyle = g;
           ctx.beginPath();
-          ctx.arc(cx, cy, r * 0.9, 0, Math.PI * 2);
+          for(let k=0;k<6;k++){const a=k*Math.PI/3;const x=cx+Math.cos(a)*r*0.91,y=cy+Math.sin(a)*r*0.91;if(k===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+          ctx.closePath();
           ctx.fill();
         }
       }
       const tex = new THREE.CanvasTexture(canvas);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(3, 4);
+      tex.repeat.set(1.6, 1.6);
       return tex;
     }
 
@@ -417,19 +398,19 @@
       }
 
       // 繪製放射狀細膩花瓣維管束脈絡 (Longitudinal Striations / Veins)
-      for (let i = 0; i < 42; i++) {
-        const t = i / 41;
+      for (let i = 0; i < 23; i++) {
+        const t = (i + Math.random()*0.5) / 23;
         const startX = w * (0.32 + t * 0.36);
         const endX = w * (0.04 + t * 0.92);
 
-        ctx.strokeStyle = i % 3 === 0 ? 'rgba(0,0,0,0.035)' : 'rgba(255,255,255,0.045)';
+        ctx.strokeStyle = i % 3 === 0 ? 'rgba(100,65,12,0.09)' : 'rgba(255,255,230,0.06)';
         ctx.lineWidth = i % 3 === 0 ? 2.0 : 1.1;
         ctx.beginPath();
         ctx.moveTo(startX, h);
         ctx.quadraticCurveTo((startX + endX) * 0.5, h * 0.45, endX, 0);
         ctx.stroke();
 
-        bCtx.strokeStyle = i % 2 === 0 ? '#a8a8a8' : '#606060';
+        bCtx.strokeStyle = i % 2 === 0 ? '#898989' : '#777777';
         bCtx.lineWidth = 2.2;
         bCtx.beginPath();
         bCtx.moveTo(startX, h);
@@ -452,7 +433,7 @@
       const map = new THREE.CanvasTexture(canvas);
       map.colorSpace = THREE.SRGBColorSpace;
       const bumpMap = new THREE.CanvasTexture(bumpCanvas);
-      applyAtlasTile(petalAtlas, atlasTile, map, bumpMap);
+      map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
       return { map, bumpMap };
     }
 
@@ -494,34 +475,8 @@
 
     const glowTex = createGlowTexture();
     const abdomenTex = createRealisticAbdomenTextures();
-    // Deepen the tergite banding of the scanned abdomen tile: amber plates, dark posterior
-    // margins and a pale hair fringe at each boundary (same boundaries as the geometry steps).
+    // Plate margins align with the geometry; actual setae supply the fine hair fringe.
     const tergiteBounds = [0.14, 0.31, 0.52, 0.70, 0.86];
-    applyAtlasTile(materialAtlas, 0, abdomenTex.colorMap, abdomenTex.bumpMap, (ctx, size) => {
-      ctx.save();
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = '#c89660'; ctx.fillRect(0, 0, size, size);
-      // Lift the dark scan at the front of T1, which slopes down to the petiole.
-      ctx.globalCompositeOperation = 'screen';
-      const t1 = ctx.createLinearGradient(0, 0, 0, 0.12 * size);
-      t1.addColorStop(0, 'rgba(120,72,30,1)'); t1.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = t1; ctx.fillRect(0, 0, size, 0.12 * size);
-      ctx.globalCompositeOperation = 'multiply';
-      tergiteBounds.forEach((bound, i) => {
-        const width = i === 0 ? 0.035 : 0.075;
-        const band = ctx.createLinearGradient(0, (bound - width) * size, 0, bound * size);
-        band.addColorStop(0, 'rgba(255,255,255,1)'); band.addColorStop(0.45, '#6b4422'); band.addColorStop(1, '#2a180c');
-        ctx.fillStyle = band; ctx.fillRect(0, (bound - width) * size, size, width * size);
-      });
-      ctx.fillStyle = '#3a2414'; ctx.fillRect(0, 0.86 * size, size, 0.14 * size);
-      ctx.globalCompositeOperation = 'screen';
-      for (const bound of tergiteBounds) {
-        const fringe = ctx.createLinearGradient(0, bound * size, 0, (bound + 0.025) * size);
-        fringe.addColorStop(0, 'rgba(120,98,66,0.9)'); fringe.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = fringe; ctx.fillRect(0, bound * size, size, 0.025 * size);
-      }
-      ctx.restore();
-    });
     const ommatidiaTex = createOmmatidiaBumpTexture();
     const wingTex = createRealisticWingTexture();
     const leafTex = createLeafTexture();
@@ -642,9 +597,9 @@
         const y = pos.getY(i);
         const ny = y / 0.95;
         // 葉尖自然收細並向前彎曲弧度
-        const widthScale = Math.sin((1 - ny * 0.85) * Math.PI * 0.5);
+        const widthScale = Math.pow(Math.max(0,1-ny),0.8);
         pos.setX(i, pos.getX(i) * widthScale);
-        pos.setZ(i, Math.pow(ny, 2.1) * 0.26);
+        pos.setZ(i, Math.pow(ny, 2.1) * 0.42);
       }
       geo.computeVertexNormals();
       return geo;
@@ -667,8 +622,8 @@
         patch.addColorStop(1,'rgba(50,55,28,0)');ctx.fillStyle=patch;ctx.fillRect(x-r,y-r,r*2,r*2);
       }
       map.needsUpdate=true;
-      map.wrapS=map.wrapT=THREE.RepeatWrapping; map.repeat.set(7,7);
-      const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({map,roughness:1}));
+      map.wrapS=map.wrapT=THREE.RepeatWrapping; map.repeat.set(3,3);
+      const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({map,bumpMap:map,bumpScale:0.018,roughness:1}));
       ground.rotation.x=-Math.PI/2; ground.position.y=-0.035; ground.receiveShadow=true; meadow.add(ground);
       const geo=createCurvedBladeGeometry(), pos=geo.attributes.position, colors=[];
       for(let i=0;i<pos.count;i++) {
@@ -676,16 +631,17 @@
         colors.push(c.r,c.g,c.b);
       }
       geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-      const grass=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.92,side:THREE.DoubleSide}),11500);
+      const grass=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.92,side:THREE.DoubleSide}),36000);
       const dummy=new THREE.Object3D(), col=new THREE.Color();
       for(let i=0;i<grass.count;i++) {
-        const radius=Math.sqrt(Math.random())*47,theta=Math.random()*Math.PI*2,h=0.22+Math.random()*0.8;
-        dummy.position.set(Math.cos(theta)*radius,0,Math.sin(theta)*radius);
-        dummy.scale.set(0.3+Math.random()*0.5,h,h);dummy.rotation.set(0,Math.random()*Math.PI*2,(Math.random()-0.5)*0.28);
+        const tuft=Math.floor(i/(3+(Math.floor(i/211)%6))),hash=n=>{const q=Math.sin(n*127.1+tuft*311.7)*43758.5453;return q-Math.floor(q);};
+        const radius=Math.sqrt(hash(1))*(i<26000?15:47),theta=hash(2)*Math.PI*2,h=0.10+Math.pow(Math.random(),1.7)*0.85;
+        dummy.position.set(Math.cos(theta)*radius+(Math.random()-0.5)*0.30,-0.045,Math.sin(theta)*radius+(Math.random()-0.5)*0.30);
+        dummy.scale.set(0.28+Math.random()*0.48,h*(0.65+Math.random()*0.6),h);dummy.rotation.set((Math.random()-0.5)*0.3,Math.random()*Math.PI*2,(Math.random()-0.5)*0.65);
         dummy.updateMatrix();grass.setMatrixAt(i,dummy.matrix);
-        col.setHSL(0.17+Math.random()*0.07,0.16+Math.random()*0.2,0.48+Math.random()*0.2);grass.setColorAt(i,col);
+        col.setHSL(0.16+Math.random()*0.10,0.10+Math.random()*0.24,0.30+Math.random()*0.27);grass.setColorAt(i,col);
       }
-      grass.receiveShadow=true;meadow.add(grass);
+      grass.castShadow=true;grass.receiveShadow=true;meadow.add(grass);
       const trees = [new THREE.Vector3(-8.5,7,-7.3),new THREE.Vector3(-18,9,-18),new THREE.Vector3(12,8,-16),new THREE.Vector3(19,10,-24),new THREE.Vector3(-9,11,-25),new THREE.Vector3(5,9,22)];
       const bark = new THREE.MeshStandardMaterial({color:0x4c4433,roughness:0.98,bumpMap:abdomenTex.bumpMap,bumpScale:0.025});
       trees.forEach(p=>{
@@ -960,22 +916,24 @@
 
     // 建立真實植物學彎曲花瓣幾何（具基部收窄、縱向中肋凹槽、橫向弧度與瓣尖微捲）
     function createBotanicalPetalGeometry(length, width, archCurve = 0.25, cupDepth = 0.08, tipPointiness = 0.5, species = '') {
-      const rows = 40, cols = 18, positions = [], uv = [], indices = [];
+      const rows = 72, cols = 32, positions = [], uv = [], indices = [];
       for (let i = 0; i <= rows; i++) {
         const u = i / rows;
         for (let j = 0; j <= cols; j++) {
           const v = j / cols * 2 - 1;
           let envelope = Math.pow(Math.sin(Math.PI * Math.pow(u, 0.72)), tipPointiness);
           envelope = Math.max(0.002, envelope);
+          if (species === 'sunflower') envelope=Math.max(0.002,Math.sin(Math.PI*Math.pow(u,0.9))**0.48);
           if (species === 'lily') envelope = Math.max(0.002, Math.pow(Math.sin(Math.PI * Math.pow(u, 0.77)), 0.54));
           if (species === 'cosmos') envelope = Math.max(0.003, Math.sin(Math.PI * Math.pow(u, 1.55)) ** 0.32);
           const notch = species === 'cosmos' ? Math.pow(u, 12) * (0.032 + 0.026 * Math.cos(v * Math.PI * 4)) : 0;
-          const x = length * u - notch;
+          const x = length * u - notch - (species==='sunflower'?Math.pow(u,16)*0.028*(0.5+0.5*Math.cos(v*Math.PI*3)):0);
           const z = v * width * 0.5 * envelope;
           const midrib = -0.008 * (1 - Math.abs(v)) * Math.sin(u * Math.PI);
           const y = (species === 'lily' ? lilyPetalHeight(length, u) : Math.sin(u * Math.PI * 0.9) * archCurve - u ** 3 * archCurve * 0.65)
             + v * v * cupDepth * Math.sin(u * Math.PI) + midrib
-            + Math.sin(u * 18 + v * 3) * v * v * 0.009;
+            + Math.sin(u * 18 + v * 3) * v * v * 0.009
+            + (species==='sunflower'?Math.cos(v*18+u*1.5)*0.002*Math.sin(u*Math.PI):0);
           positions.push(x, y, z); uv.push(j / cols, u);
           if (i < rows && j < cols) {
             const a = i * (cols + 1) + j, b = a + cols + 1;
@@ -1026,7 +984,7 @@
     const sharedLeafMat = new THREE.MeshStandardMaterial({
       map: materialMaps[2].colorMap,
       bumpMap: materialMaps[2].bumpMap,
-      bumpScale: 0.006,
+      bumpScale: 0.001,
       roughness: 0.76,
       metalness: 0,
       side: THREE.DoubleSide
@@ -1043,8 +1001,27 @@
       return length * (0.52 * Math.sin(u * Math.PI * 0.95) - 0.24 * u * u * u);
     }
 
+    function nearestSupportFloret(flower,x,z) {
+      const support=flower.headGroup?.userData.floretSupport;
+      if(!support)return null;
+      const {cells,cellSize}=support,ix=Math.floor(x/cellSize),iz=Math.floor(z/cellSize);
+      let nearest=null,distance=Infinity;
+      for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++) {
+        for(const floret of cells.get((ix+dx)+','+(iz+dz))||[]) {
+          const d=(x-floret.x)**2+(z-floret.z)**2;
+          if(d<distance){nearest=floret;distance=d;}
+        }
+      }
+      return distance<cellSize*cellSize?nearest:null;
+    }
+
     function flowerSurfaceHeight(flower, x, z) {
       const r = Math.hypot(x, z);
+      if(flower.species==='sunflower' && flower.headGroup?.userData.floretSupport) {
+        const nearest=nearestSupportFloret(flower,x,z);
+        if(nearest) return nearest.y;
+        return discHeight(flower.coreRadius,flower.coreHeight,r,flower.species)+0.012*flower.scale;
+      }
       if (flower.species !== 'lily') return discHeight(flower.coreRadius, flower.coreHeight, r, flower.species) + 0.03 * flower.scale;
       // The landing patch lies on the inner face of the +X tepal.
       const length = 1.45 * flower.scale, pitch = 0.16;
@@ -1103,8 +1080,8 @@
       bendGroup.add(stemMesh);
 
       // Leaves emerge from their own petiole at the actual stem position.
-      const leafCount = species === 'lily' ? 9 : species === 'cosmos' ? 5 : 4;
-      const leafLength = (species === 'sunflower' ? 1.18 : species === 'lily' ? 0.92 : 0.85) * scale;
+      const leafCount = species === 'lily' ? 9 : species === 'cosmos' ? 5 : 6;
+      const leafLength = (species === 'sunflower' ? 1.85 : species === 'lily' ? 1.35 : 1.28) * scale;
       const leafWidth = (species === 'sunflower' ? 0.88 : species === 'lily' ? 0.14 : 0.28) * scale;
       const speciesLeafGeo = createBotanicalLeafGeometry(leafLength, leafWidth, species);
       const speciesLeafMat = sharedLeafMat.clone();
@@ -1131,7 +1108,7 @@
           const petiole = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.018, petioleLength, 6), stemMat);
           petiole.rotation.z = -Math.PI / 2; petiole.position.x = petioleLength / 2;
           const leaf = new THREE.Mesh(speciesLeafGeo, speciesLeafMat);
-          leaf.position.x = petioleLength; leaf.scale.setScalar(1 - i / leafCount * 0.4);
+          leaf.position.x = petioleLength; leaf.scale.setScalar(1 - i / leafCount * 0.28);
           leaf.castShadow = true; leaf.receiveShadow = true; leafNode.add(petiole, leaf);
         }
         bendGroup.add(leafNode);
@@ -1238,40 +1215,59 @@
           stamenGroup.add(filMesh, antherMesh);
         }
       } else if (isSunflower) {
+        // Closed immature buds, densely packed between the open five-lobed florets.
         function tubularFloret(open) {
-          const vertices=[],indices=[],radial=20;
-          // One embedded tube per spiral site, ending in a bud or five soft lobes.
-          for(let row=0;row<5;row++) for(let j=0;j<=radial;j++) {
-            const a=j/radial*Math.PI*2,lobe=(1+Math.cos(a*5))*0.5;
-            const radius=([0.0105,0.0092,0.0068,open?0.0093:0.0048,open?0.0108:0.0012][row])*scale;
-            const y=([-0.012,0,0.017,0.026,open?0.030+0.004*lobe:0.031][row])*scale;
-            const rim=row===4&&open?0.86+0.14*lobe:1;
-            vertices.push(Math.cos(a)*radius*rim,y,Math.sin(a)*radius*rim);
-            if(row<4&&j<radial){const k=row*(radial+1)+j;indices.push(k,k+1,k+radial+1,k+1,k+radial+2,k+radial+1);}
+          if (!open) {
+            const profile=[new THREE.Vector2(0.004,0),new THREE.Vector2(0.005,0.004),new THREE.Vector2(0.0052,0.007),new THREE.Vector2(0.0038,0.010),new THREE.Vector2(0.0008,0.011)];
+            const g=new THREE.LatheGeometry(profile,8);g.scale(scale,scale,scale);return g;
           }
-          const geometry=new THREE.BufferGeometry();
-          geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
-          geometry.setIndex(indices);geometry.computeVertexNormals();return geometry;
+          const vertices=[],indices=[],radial=15;
+          for(let row=0;row<4;row++) for(let j=0;j<=radial;j++) {
+            const a=j/radial*Math.PI*2,lobe=Math.cos(a*5);
+            const radius=[0.005,0.004,0.007,0.0095*(0.86+0.14*lobe)][row]*scale;
+            vertices.push(Math.cos(a)*radius,([0,0.008,0.012,0.015+0.002*lobe][row])*scale,Math.sin(a)*radius);
+            if(row<3&&j<radial){const k=row*(radial+1)+j;indices.push(k,k+1,k+radial+1,k+1,k+radial+2,k+radial+1);}
+          }
+          const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+          g.setIndex(indices);g.computeVertexNormals();return g;
         }
-        const total=4600,buds=3100;
+        const total=11500,buds=7800;
         const mat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.91,side:THREE.DoubleSide});
         const unopened=new THREE.InstancedMesh(tubularFloret(false),mat,buds);
         const flowering=new THREE.InstancedMesh(tubularFloret(true),mat,total-buds);
         const dummy=new THREE.Object3D(),color=new THREE.Color();
+        const supportCells=new Map(),cellSize=0.028*scale;
+        headGroup.userData.floretSupport={cells:supportCells,cellSize};
         for(let i=0;i<total;i++) {
-          const t=(i+0.5)/total,r=Math.sqrt(t)*coreRadius*0.987;
-          const theta=i*2.3999632297+(Math.random()-0.5)*0.01;
-          dummy.position.set(Math.cos(theta)*r,discHeight(coreRadius,coreHeight,r,species)-0.002*scale,Math.sin(theta)*r);
-          dummy.rotation.set(Math.sin(theta)*0.12*r/coreRadius,theta,-Math.cos(theta)*0.12*r/coreRadius);
-          dummy.scale.set(0.92+Math.random()*0.12,0.91+Math.random()*0.15,0.92+Math.random()*0.12);
+          const t=(i+0.5)/total,r=Math.sqrt(t)*coreRadius*(0.978+(Math.random()-0.5)*0.003);
+          const theta=i*2.3999632297+(Math.random()-0.5)*0.002;
+          dummy.position.set(Math.cos(theta)*r,discHeight(coreRadius,coreHeight,r,species)+0.002*scale,Math.sin(theta)*r);
+          dummy.rotation.set((Math.random()-0.5)*0.2,theta,(Math.random()-0.5)*0.2);
+          dummy.scale.set(0.85+Math.random()*0.22,0.8+Math.random()*0.35,0.85+Math.random()*0.22);
           dummy.updateMatrix();
           const mesh=i<buds?unopened:flowering,k=i<buds?i:i-buds;
+          if(i<buds) dummy.scale.y*=0.65+Math.random()*0.40;
+          else dummy.scale.y*=0.50+Math.random()*0.48;
+          dummy.updateMatrix();
           mesh.setMatrixAt(k,dummy.matrix);
-          color.setHSL(i<buds?0.105+Math.random()*0.02:0.12+Math.random()*0.025,
-            i<buds?0.35+Math.random()*0.16:0.6+Math.random()*0.15,
-            i<buds?0.13+0.055*t+Math.random()*0.035:0.37+Math.random()*0.12);
-          mesh.setColorAt(k,color);
+          if(i<buds) {
+            color.lerpColors(new THREE.Color(0x35251b),new THREE.Color(0x8c7133),Math.pow(t/(buds/total),1.25));
+            const key=Math.floor(dummy.position.x/cellSize)+','+Math.floor(dummy.position.z/cellSize);
+            if(!supportCells.has(key))supportCells.set(key,[]);
+            supportCells.get(key).push({x:dummy.position.x,z:dummy.position.z,y:dummy.position.y+0.011*scale*dummy.scale.y,
+              rx:0.005*scale*dummy.scale.x,rz:0.005*scale*dummy.scale.z,ry:0.007*scale*dummy.scale.y});
+          } else color.lerpColors(new THREE.Color(0x806330),new THREE.Color(0xc7a044),Math.min(1,(t-buds/total)/(1-buds/total)*0.65+Math.random()*0.35));
+          color.multiplyScalar(0.82+Math.random()*0.32);mesh.setColorAt(k,color);
         }
+        // Anther columns and granular pollen emerge only from the flowering annulus.
+        const anthers=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.0025*scale,0.0032*scale,0.008*scale,5),new THREE.MeshStandardMaterial({color:0x7c3e12,roughness:0.9}),total-buds);
+        const pollen=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.0028*scale,0),new THREE.MeshStandardMaterial({color:0xf3b827,roughness:1}),total-buds);
+        for(let k=0;k<total-buds;k++) {
+          flowering.getMatrixAt(k,dummy.matrix);dummy.matrix.decompose(dummy.position,dummy.quaternion,dummy.scale);
+          dummy.position.y+=0.017*scale;dummy.updateMatrix();anthers.setMatrixAt(k,dummy.matrix);
+          dummy.position.y+=0.004*scale;dummy.updateMatrix();pollen.setMatrixAt(k,dummy.matrix);
+        }
+        stamenGroup.add(anthers,pollen);
         for(const mesh of [unopened,flowering]) {
           mesh.castShadow=true;mesh.receiveShadow=true;
           mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;stamenGroup.add(mesh);
@@ -1350,13 +1346,13 @@
       const petalMat = new THREE.MeshPhysicalMaterial({
         map: pTex.map,
         bumpMap: pTex.bumpMap,
-        bumpScale: 0.003,
-        roughness: 0.73,
+        bumpScale: 0.00065,
+        roughness: 0.78,
         metalness: 0,
-        transmission: 0.045,
-        thickness: 0.008,
+        transmission: 0.12,
+        thickness: 0.002,
         ior: 1.36,
-        sheen: 0.2, // 真實花瓣絲絨細胞漫射光澤
+        sheen: 0.08, // 真實花瓣絲絨細胞漫射光澤
         sheenRoughness: 0.4,
         sheenColor: new THREE.Color(petalTipHex),
         clearcoat: 0,
@@ -1364,13 +1360,13 @@
       });
 
       const pLen = (isSunflower ? 1.18 : isLily ? 1.45 : isConeflower ? 1.15 : 1.05) * scale;
-      const pWid = (isSunflower ? 0.34 : isLily ? 0.88 : isCosmos ? 0.72 : isConeflower ? 0.25 : 0.23) * scale;
+      const pWid = (isSunflower ? 0.43 : isLily ? 0.88 : isCosmos ? 0.72 : isConeflower ? 0.25 : 0.23) * scale;
       const pArch = isLily ? 0.36 * scale : isConeflower ? -0.24 * scale : 0.11 * scale;
       const pCup = isLily ? 0.11 * scale : 0.045 * scale;
-      const pTip = isSunflower ? 0.75 : isLily ? 0.65 : 0.4;
+      const pTip = isSunflower ? 0.72 : isLily ? 0.65 : 0.4;
 
       const petalGeo = createBotanicalPetalGeometry(pLen, pWid, pArch, pCup, pTip, species);
-      const layers = isLily ? 2 : 1;
+      const layers = isLily || isSunflower ? 2 : 1;
       const perLayer = isLily ? 3 : petalCount;
 
       for (let layer = 0; layer < layers; layer++) {
@@ -1378,24 +1374,25 @@
           const angle =
             (i / perLayer) * Math.PI * 2 +
             layer * (Math.PI / perLayer) +
-            (Math.random() - 0.5) * 0.04;
+            (Math.random() - 0.5) * 0.10;
 
           const petalPivot = new THREE.Group();
           petalPivot.rotation.y = angle;
 
           const variedGeo=petalGeo.clone(),vp=variedGeo.attributes.position;
-          const curl=(Math.random()-0.5)*0.12*scale,skew=(Math.random()-0.5)*0.12;
+          const curl=(Math.random()-0.5)*0.35*scale,skew=(Math.random()-0.5)*0.25;
+          const twist=(Math.random()-0.5)*0.55,tipWidth=0.7+Math.random()*0.55;
           const cropX=Math.random()*0.06,cropY=Math.random()*0.05;
           for(let v=0;v<vp.count;v++) {
             const u=vp.getX(v)/pLen,z=vp.getZ(v);
-            vp.setY(v,vp.getY(v)+curl*u*u+Math.sin(u*9+i*1.7)*Math.abs(z)*0.10);
-            vp.setZ(v,z+skew*pLen*u*u);
+            vp.setY(v,vp.getY(v)+curl*u*u+twist*z*u+Math.sin(u*16+i*1.7)*z*z/pWid*0.20);
+            vp.setZ(v,z*(1+(tipWidth-1)*u)+skew*pLen*u*u);
             variedGeo.attributes.uv.setXY(v,variedGeo.attributes.uv.getX(v)*0.94+cropX,variedGeo.attributes.uv.getY(v)*0.95+cropY);
           }
           variedGeo.computeVertexNormals();
-          const variedMat=petalMat.clone();variedMat.color.setHSL(0.1,0.06,0.91+Math.random()*0.08);
+          const variedMat=petalMat.clone();variedMat.color.setHSL(0.105+Math.random()*0.025,0.12+Math.random()*0.13,0.77+Math.random()*0.16);
           const petal = new THREE.Mesh(variedGeo, variedMat);
-          petal.scale.set(0.87+Math.random()*0.24,0.86+Math.random()*0.28,0.84+Math.random()*0.28);
+          petal.scale.set((layer&&isSunflower?0.86:1)*(0.80+Math.random()*0.30),0.8+Math.random()*0.4,0.80+Math.random()*0.32);
           const attachR = isLily ? 0.12 * scale : coreRadius * 0.85;
           petal.position.set(attachR, -layer * 0.045 * scale, 0);
           // 紫錐菊花瓣自然下垂，百合花瓣向上展開呈喇叭杯狀，向日葵與法國菊自然平展微仰
@@ -1510,7 +1507,8 @@
         // starts tucked beneath it. Boundaries follow the hair fringes in the atlas tile.
         let segStart = 0, segEnd = 1;
         for (const bound of [0.14, 0.31, 0.52, 0.70, 0.86]) { if (t < bound) { segEnd = bound; break; } segStart = bound; }
-        const lip = 0.95 + 0.05 * Math.pow((t - segStart) / (segEnd - segStart), 0.7);
+        const plateT=(t-segStart)/(segEnd-segStart);
+        const lip = 0.982 + 0.018*Math.sin(plateT*Math.PI) - 0.009*Math.pow(plateT,8);
         x *= lip; y *= lip;
         y -= Math.pow(t, 1.8) * 0.11; // 自然微垂曲線
         pos.setXYZ(i, x, y, z);
@@ -1529,13 +1527,13 @@
         let y = pos.getY(i);
         let z = pos.getZ(i);
         // 蜜蜂頭部前後較扁 (Z軸)，下方口器區收窄呈倒三角心形
-        z *= 0.68;
+        z *= 0.85;
         if (y < 0) {
-          const narrow = 1.0 - Math.min(0.48, Math.abs(y) * 1.45);
+          const narrow = 1.0 - Math.min(0.68, Math.abs(y) * 2.7);
           x *= narrow;
           z *= 0.88;
         } else {
-          x *= 1.06;
+          x *= 1.05 - 0.22*Math.pow(y/0.26,3);
         }
         pos.setXYZ(i, x, y, z);
       }
@@ -1567,7 +1565,7 @@
       for(let i=0;i<triangles.attributes.position.count;i+=3)subdivide(
         new THREE.Vector3().fromBufferAttribute(triangles.attributes.position,i),
         new THREE.Vector3().fromBufferAttribute(triangles.attributes.position,i+1),
-        new THREE.Vector3().fromBufferAttribute(triangles.attributes.position,i+2),2);
+        new THREE.Vector3().fromBufferAttribute(triangles.attributes.position,i+2),1);
       const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
       outlineGeo.dispose();triangles.dispose();
       // 計算精確對齊翅脈貼圖的 UV (0~1)
@@ -1602,7 +1600,7 @@
 
       // 寫實 PBR 幾丁質與絲絨毛皮材質
       const thoraxVelvetMat = new THREE.MeshPhysicalMaterial({
-        color: 0x594022,
+        color: 0x392b1e,
         roughness: 0.86,
         metalness: 0.04,
         sheen: 0.38,
@@ -1610,8 +1608,8 @@
         sheenColor: new THREE.Color(0xf5c36c)
       });
       const headChitinMat = new THREE.MeshPhysicalMaterial({
-        color: 0x1c140e,
-        roughness: 0.48,
+        color: 0x251b13,
+        roughness: 0.7,
         metalness: 0,
         bumpMap: abdomenTex.bumpMap,
         bumpScale: 0.004,
@@ -1621,7 +1619,7 @@
       });
       const legChitinMat = new THREE.MeshPhysicalMaterial({
         color: 0x24160c,
-        roughness: 0.32,
+        roughness: 0.49,
         metalness: 0,
         clearcoat: 0.18,
         clearcoatRoughness: 0.25,
@@ -1642,11 +1640,12 @@
       });
       // Compound eyes are dull grey-brown, faceted and finely hairy rather than glassy.
       const compoundEyeMat = new THREE.MeshPhysicalMaterial({
-        color: 0x2b241d,
-        roughness: 0.62,
+        color: 0x191b18,
+        roughness: 0.38,
         metalness: 0,
+        map: null,
         bumpMap: ommatidiaTex,
-        bumpScale: 0.004, // 真實六角形小眼面微距凹凸
+        bumpScale: 0.0024, // Resolved compound-eye facets at macro scale
         clearcoat: 0.3,
         clearcoatRoughness: 0.4,
         sheen: 0.35,
@@ -1666,7 +1665,8 @@
 
       // 1. 頭部關節階層 (Head Capsule, Compound Eyes, 3 Ocelli, Mandibles, Proboscis, Geniculate Antennae)
       const headGroup = new THREE.Group();
-      headGroup.position.set(0, 0.03, 0.52);
+      headGroup.position.set(0, 0.015, 0.49);
+      headGroup.scale.set(0.89,0.89,0.88);
       beeModel.add(headGroup);
 
       const headMesh = new THREE.Mesh(sharedHeadGeo, headChitinMat);
@@ -1675,7 +1675,7 @@
 
       // 兩側大型腎形/長橢圓複眼 (Compound Eyes)
       const eyeGeo = new THREE.SphereGeometry(0.135, 28, 20);
-      eyeGeo.scale(0.5, 1.3, 0.8);
+      eyeGeo.scale(0.68, 1.35, 0.97);
       // Flatten the inner face so each kidney-shaped eye sits into the head capsule.
       const eyePos = eyeGeo.attributes.position;
       for (let i = 0; i < eyePos.count; i++) if (eyePos.getX(i) < 0) eyePos.setX(i, eyePos.getX(i) * 0.35);
@@ -1683,7 +1683,7 @@
       const compoundEyes = [];
       for (const side of [-1, 1]) {
         const eye = new THREE.Mesh(eyeGeo, compoundEyeMat);
-        eye.position.set(side * 0.185, 0.03, 0.035);
+        eye.position.set(side * 0.184, 0.031, 0.065);
         eye.scale.x = side;
         eye.rotation.z = -side * 0.18;
         eye.rotation.y = side * 0.3;
@@ -1694,9 +1694,9 @@
       // 頭頂倒三角形排列的 3 顆晶瑩單眼 (Ocelli)
       const ocellusGeo = new THREE.SphereGeometry(0.015, 10, 10);
       const ocelliCoords = [
-        [0, 0.23, 0.05],
-        [-0.045, 0.21, 0.08],
-        [0.045, 0.21, 0.08]
+        [0, 0.225, 0.093],
+        [-0.044, 0.198, 0.119],
+        [0.044, 0.198, 0.119]
       ];
       ocelliCoords.forEach(([ox, oy, oz]) => {
         const oc = new THREE.Mesh(ocellusGeo, ocellusMat);
@@ -1704,24 +1704,29 @@
         headGroup.add(oc);
       });
 
+      // Flattened trapezoidal clypeus below the antennal sockets, continuous with the face.
+      const clypeusGeo=new THREE.SphereGeometry(1,18,12);
+      clypeusGeo.scale(0.082,0.078,0.030);clypeusGeo.translate(0,-0.095,0.132);
+      headGroup.add(new THREE.Mesh(clypeusGeo,headChitinMat));
+
       // 一對上顎 (Mandibles) 與可伸展長喙口器 (Proboscis: Galea + Labial Palps + Glossa)
       for (const side of [-1, 1]) {
         // Small mandibles tucked against the face so they do not read as leg stubs.
         const mandible = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.065, 8), legChitinMat);
-        mandible.position.set(side * 0.045, -0.2, 0.1);
+        mandible.position.set(side * 0.041, -0.185, 0.073);
         mandible.rotation.z = -side * 0.35;
         mandible.rotation.x = 0.35;
         headGroup.add(mandible);
       }
 
       const proboscisPivot = new THREE.Group();
-      proboscisPivot.position.set(0, -0.2, 0.1);
-      proboscisPivot.rotation.x = 1.05; // Feeding glossa reaches down into the florets below the head.
+      proboscisPivot.position.set(0, -0.19, 0.075);
+      proboscisPivot.rotation.x = 0.62; // Feeding glossa reaches down into the florets below the head.
       // A tapered, slightly curved amber glossa, sheathed at its base by the paired galeae.
       const glossaSegments = 24;
       const glossaCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -0.012, 0.31), new THREE.Vector3(0, -0.045, 0.62)]);
-      const glossaGeo = new THREE.TubeGeometry(glossaCurve, glossaSegments, 0.0095, 8, false);
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -0.008, 0.15), new THREE.Vector3(0, -0.022, 0.29)]);
+      const glossaGeo = new THREE.TubeGeometry(glossaCurve, glossaSegments, 0.005, 8, false);
       const glossaPos = glossaGeo.attributes.position, ringCenter = new THREE.Vector3(), glossaPoint = new THREE.Vector3();
       for (let i = 0; i < glossaPos.count; i++) {
         const ring = Math.floor(i / 9);
@@ -1734,10 +1739,10 @@
       const glossaMesh = new THREE.Mesh(glossaGeo, glossaMat);
       proboscisPivot.add(glossaMesh);
       for (const side of [-1, 1]) {
-        const galeaGeo = new THREE.CylinderGeometry(0.005, 0.013, 0.32, 8);
+        const galeaGeo = new THREE.CylinderGeometry(0.003, 0.008, 0.15, 8);
         galeaGeo.rotateX(Math.PI / 2);
         galeaGeo.scale(1, 0.55, 1);
-        galeaGeo.translate(side * 0.013, -0.003, 0.16);
+        galeaGeo.translate(side * 0.008, -0.003, 0.075);
         proboscisPivot.add(new THREE.Mesh(galeaGeo, legChitinMat));
       }
       proboscisPivot.scale.set(1, 1, 0.01);
@@ -1750,7 +1755,7 @@
       const antennaeList = [];
       for (const side of [-1, 1]) {
         const scapePivot = new THREE.Group();
-        scapePivot.position.set(side * 0.06, 0.04, 0.165);
+        scapePivot.position.set(side * 0.072, -0.006, 0.174);
         scapePivot.rotation.set(-0.25, side * 0.38, -side * 0.18);
         scapePivot.add(new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), antennaMat)); // torulus socket
 
@@ -1790,7 +1795,13 @@
       beeModel.add(thoraxGroup);
 
       const thoraxGeo = new THREE.SphereGeometry(0.36, 28, 22);
-      thoraxGeo.scale(0.95, 0.92, 1.18);
+      thoraxGeo.scale(0.80, 0.79, 1.12);
+      const tp=thoraxGeo.attributes.position;
+      for(let i=0;i<tp.count;i++) {
+        const z=tp.getZ(i),waist=1-0.13*Math.exp(-(((z+0.24)/0.10)**2));
+        tp.setXYZ(i,tp.getX(i)*waist,tp.getY(i)*(z<0?0.90:1),z);
+      }
+      thoraxGeo.computeVertexNormals();
       const thoraxMesh = new THREE.Mesh(thoraxGeo, thoraxVelvetMat);
       thoraxMesh.castShadow = true;
       thoraxGroup.add(thoraxMesh);
@@ -1799,21 +1810,44 @@
       function addSetae(parent, radii, count, length, tint) {
         const vertices = [], colors = [], base = new THREE.Color(tint);
         const normal = new THREE.Vector3(), start = new THREE.Vector3(), end = new THREE.Vector3();
+        const surface=parent===headGroup?sharedHeadGeo:parent===thoraxGroup?thoraxGeo:null;
+        const triangles=[],cumulative=[];let totalArea=0;
+        if(surface) {
+          const pos=surface.attributes.position,idx=surface.index;
+          const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();
+          for(let k=0;k<(idx?idx.count:pos.count);k+=3) {
+            const ids=[0,1,2].map(j=>idx?idx.getX(k+j):k+j);
+            a.fromBufferAttribute(pos,ids[0]);b.fromBufferAttribute(pos,ids[1]);c.fromBufferAttribute(pos,ids[2]);
+            totalArea+=b.sub(a).cross(c.sub(a)).length()*0.5;
+            triangles.push(ids);cumulative.push(totalArea);
+          }
+        }
         function segment(a, b, brightness) {
-          vertices.push(a.x, a.y, a.z, b.x, b.y, b.z);
-          colors.push(base.r * brightness, base.g * brightness, base.b * brightness,
-                      base.r * brightness * 1.08, base.g * brightness * 1.08, base.b * brightness * 1.08);
+          const lateral=new THREE.Vector3().subVectors(b,a).cross(normal).normalize().multiplyScalar(0.00065);
+          vertices.push(a.x-lateral.x,a.y-lateral.y,a.z-lateral.z,a.x+lateral.x,a.y+lateral.y,a.z+lateral.z,b.x,b.y,b.z);
+          for(const shade of [brightness,brightness,brightness*0.65])colors.push(base.r*shade,base.g*shade,base.b*shade);
         }
         for (let i = 0; i < count; i++) {
           const y = 1 - 2 * Math.random(), r = Math.sqrt(1 - y * y), a = Math.random()*Math.PI*2;
           normal.set(Math.cos(a) * r, y, Math.sin(a) * r);
           start.set(normal.x * radii.x, normal.y * radii.y, normal.z * radii.z);
-          const len = length*(0.25+Math.pow(Math.random(),1.5)*1.3);
+          if(surface) {
+            const area=Math.random()*totalArea;let lo=0,hi=cumulative.length-1;
+            while(lo<hi){const mid=(lo+hi)>>1;if(cumulative[mid]<area)lo=mid+1;else hi=mid;}
+            const ids=triangles[lo],u=Math.sqrt(Math.random()),v=Math.random(),weights=[1-u,u*(1-v),u*v];
+            start.set(0,0,0);normal.set(0,0,0);
+            ids.forEach((id,j)=>{
+              start.addScaledVector(new THREE.Vector3().fromBufferAttribute(surface.attributes.position,id),weights[j]);
+              normal.addScaledVector(new THREE.Vector3().fromBufferAttribute(surface.attributes.normal,id),weights[j]);
+            });normal.normalize();start.addScaledVector(normal,0.0008);
+          }
+          const patch=0.52+0.48*Math.sin(a*4+y*7)**2;
+          const len = length*(0.5+Math.random()*0.65)*(0.8+patch*0.2);
           const tangent=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).projectOnPlane(normal);
-          const sweep=normal.clone().addScaledVector(tangent,0.8).add(new THREE.Vector3(0,0.07,-0.08)).normalize();
-          const middle=start.clone().addScaledVector(sweep,len*0.52);
+          const sweep=normal.clone().multiplyScalar(0.85).addScaledVector(tangent,0.40).add(new THREE.Vector3(0,0.02,-0.20)).normalize();
+          const middle=start.clone().addScaledVector(normal,len*0.3).addScaledVector(sweep,len*0.32);
           end.copy(start).addScaledVector(sweep,len).addScaledVector(tangent,len*0.2);
-          const shade=0.37+Math.max(0,normal.y*0.5+normal.x*0.2)*0.32+Math.random()*0.25;
+          const shade=0.62+Math.max(0,normal.y*0.5+normal.x*0.2)*0.22+Math.random()*0.16;
           segment(start,middle,shade);segment(middle,end,shade*1.05);
           if (i % 3 === 0) {
             const mid = start.clone().lerp(end, 0.6);
@@ -1823,12 +1857,13 @@
         }
         const g = new THREE.BufferGeometry();g.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         g.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        const fur = new THREE.LineSegments(g, new THREE.LineBasicMaterial({vertexColors: true, transparent: true, opacity: 0.62}));
+        g.computeVertexNormals();
+        const fur = new THREE.Mesh(g, new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}));
         fur.userData.isSetae=true;
         parent.add(fur);
       }
-      addSetae(thoraxGroup, new THREE.Vector3(0.341, 0.332, 0.426), isCompanion ? 1300 : 11000, 0.051, 0xb59b72);
-      addSetae(headGroup, new THREE.Vector3(0.247, 0.248, 0.162), isCompanion ? 400 : 2200, 0.023, 0x908878);
+      addSetae(thoraxGroup, new THREE.Vector3(0.288, 0.302, 0.403), isCompanion ? 1600 : 32000, 0.039, 0x9a8056);
+      addSetae(headGroup, new THREE.Vector3(0.235, 0.248, 0.12), isCompanion ? 250 : 3800, 0.018, 0x87765b);
       if (!isCompanion) compoundEyes.forEach(eye => addSetae(eye, new THREE.Vector3(0.0675, 0.1755, 0.108), 260, 0.009, 0x8a8172));
 
 
@@ -1841,6 +1876,7 @@
       beeModel.add(petiole);
       const abdomenGroup = new THREE.Group();
       abdomenGroup.position.set(0, 0.01, -0.31);
+      abdomenGroup.scale.set(0.93,0.94,1.10);
       abdomenGroup.rotation.x = -0.06;
       beeModel.add(abdomenGroup);
 
@@ -1859,7 +1895,9 @@
           .add(new THREE.Vector3().fromBufferAttribute(sample, v + 91).multiplyScalar(wu))
           .add(new THREE.Vector3().fromBufferAttribute(sample, v + 1).multiplyScalar(wv));
         const outward = new THREE.Vector3(p.x, p.y + t*t*0.11, 0).normalize();
-        const len = 0.008 + Math.random() * 0.017;
+        const fringe=tergiteBounds.some(b=>t>b&&t<b+0.035);
+        if(!fringe&&Math.random()<0.80)continue;
+        const len = fringe?0.009+Math.random()*0.010:0.003+Math.random()*0.006;
         const q = p.clone().addScaledVector(outward, len).add(new THREE.Vector3(0, 0, -len * 0.5));
         abdominalHair.push(p.x,p.y,p.z,q.x,q.y,q.z);
         const c = new THREE.Color(0xa59470).multiplyScalar(0.45 + Math.max(0,outward.y)*0.5 + Math.random()*0.18);
@@ -1868,7 +1906,7 @@
       const abHairGeo = new THREE.BufferGeometry();
       abHairGeo.setAttribute('position', new THREE.Float32BufferAttribute(abdominalHair,3));
       abHairGeo.setAttribute('color', new THREE.Float32BufferAttribute(abdominalColors,3));
-      abdomenGroup.add(new THREE.LineSegments(abHairGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.5})));
+      abdomenGroup.add(new THREE.LineSegments(abHairGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.28})));
 
       const stingerGeo = new THREE.ConeGeometry(0.022, 0.12, 8);
       stingerGeo.rotateX(-Math.PI / 2);
@@ -1884,7 +1922,7 @@
       const legSpecs = [
         { z: 0.28, x: 0.22, yaw: 0.52, femurLen: 0.21, tibiaLen: 0.20 },  // 前足 (Prothoracic)
         { z: 0.08, x: 0.26, yaw: 0.05, femurLen: 0.23, tibiaLen: 0.23 },  // 中足 (Mesothoracic)
-        { z: -0.14, x: 0.25, yaw: -0.52, femurLen: 0.26, tibiaLen: 0.28 } // 後足 (Metathoracic - 具寬扁脛節花粉籃)
+        { z: -0.17, x: 0.25, yaw: -0.28, femurLen: 0.33, tibiaLen: 0.31 } // 後足 (Metathoracic - 具寬扁脛節花粉籃)
       ];
 
       legSpecs.forEach((spec, idx) => {
@@ -1895,24 +1933,27 @@
           coxaPivot.rotation.z = side * 0.58;
 
           // 基節 (Coxa) fixed to the thorax underside, then a small trochanter at the femur root.
-          const coxaMesh = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), legChitinMat);
-          coxaMesh.scale.set(1, 1.3, 1.1);
-          coxaMesh.position.copy(coxaPivot.position);
-          beeModel.add(coxaMesh);
+          const innerRoot=new THREE.Vector3(side*(idx===2?0.105:0.16),-0.085,spec.z+(idx===2?0.09:0.015));
+          const outerRoot=coxaPivot.position.clone();
+          const basalCurve=new THREE.CatmullRomCurve3([innerRoot,innerRoot.clone().lerp(outerRoot,0.52).add(new THREE.Vector3(0,-0.012,0)),outerRoot]);
+          const coxaMesh=new THREE.Mesh(new THREE.TubeGeometry(basalCurve,8,0.024,10,false),legChitinMat);
+          coxaMesh.castShadow=true;beeModel.add(coxaMesh);
+          const socket=new THREE.Mesh(new THREE.SphereGeometry(0.027,12,8),thoraxVelvetMat);
+          socket.scale.set(1,0.7,1.25);socket.position.copy(innerRoot);beeModel.add(socket);
 
           // 腿節 (Femur)：spindle-shaped, narrow at the trochanter, swelling, then tapering into the knee.
           const femurGeo = new THREE.LatheGeometry([
-            new THREE.Vector2(0.001, 0), new THREE.Vector2(0.019, 0.012), new THREE.Vector2(0.027, spec.femurLen * 0.3),
-            new THREE.Vector2(0.024, spec.femurLen * 0.7), new THREE.Vector2(0.017, spec.femurLen * 0.97), new THREE.Vector2(0.001, spec.femurLen)
+            new THREE.Vector2(0.001, 0), new THREE.Vector2(0.019, 0.012), new THREE.Vector2(0.024, spec.femurLen * 0.3),
+            new THREE.Vector2(0.019, spec.femurLen * 0.7), new THREE.Vector2(0.017, spec.femurLen * 0.97), new THREE.Vector2(0.001, spec.femurLen)
           ], 10);
           femurGeo.rotateX(Math.PI); // lathe grows along +Y; the femur hangs along -Y
           const femurMesh = new THREE.Mesh(femurGeo, legChitinMat);
           femurMesh.castShadow = true;
-          const trochanter = new THREE.Mesh(new THREE.SphereGeometry(0.021, 10, 8), legChitinMat);
+          const trochanter = new THREE.Mesh(new THREE.SphereGeometry(0.013, 10, 8), legChitinMat);
           trochanter.position.y = -0.014;
           femurMesh.add(trochanter);
           const femurBristles = [];
-          for (let j = 0; j < 18; j++) {
+          for (let j = 0; j < 48; j++) {
             const along = 0.2 + Math.random() * 0.7, a = Math.random() * Math.PI * 2, r = 0.024;
             const bx = Math.cos(a) * r, bz = Math.sin(a) * r, by = -along * spec.femurLen;
             femurBristles.push(bx, by, bz, bx * 1.6, by - 0.012 - Math.random() * 0.01, bz * 1.6);
@@ -1947,10 +1988,16 @@
           for(let segment=0;segment<5;segment++) {
             const length=segment===0?0.075:0.019;
             const radius=(idx===2?0.017:0.012)*(1-segment*0.14);
-            const g=new THREE.CylinderGeometry(radius,radius*0.72,length*0.93,8);
+            const g=new THREE.CylinderGeometry(radius,radius*0.72,length*1.04,8);
             if(idx===2&&segment===0)g.scale(1.55,1,0.7); // broad, flattened hind basitarsus (pollen brush)
             const part=new THREE.Mesh(g,legChitinMat);part.position.y=-jointY-length/2;
-            basitarsusMesh.add(part);jointY+=length;
+            basitarsusMesh.add(part);
+            for(let j=0;j<5;j++) {
+              const a=j*Math.PI*0.4,root=new THREE.Vector3(Math.cos(a)*radius,-jointY-length*0.65,Math.sin(a)*radius);
+              const g=new THREE.BufferGeometry().setFromPoints([root,root.clone().add(new THREE.Vector3(Math.cos(a)*0.009,-0.012,Math.sin(a)*0.009))]);
+              basitarsusMesh.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0x9a7848,transparent:true,opacity:0.7})));
+            }
+            jointY+=length;
           }
           for(const cSide of [-1,1]) {
             const curve=new THREE.CatmullRomCurve3([
@@ -1960,10 +2007,10 @@
             basitarsusMesh.add(new THREE.Mesh(new THREE.TubeGeometry(curve,6,0.0032,5,false),legChitinMat));
           }
           tarsusPivot.add(basitarsusMesh);
-          const knee=new THREE.Mesh(new THREE.SphereGeometry(idx===2?0.017:0.014,10,8),legChitinMat);
+          const knee=new THREE.Mesh(new THREE.SphereGeometry(idx===2?0.012:0.011,10,8),legChitinMat);
           tibiaPivot.add(knee);
           const bristles=[];
-          for(let j=0;j<26;j++) {
+          for(let j=0;j<65;j++) {
             const t=Math.random(),a=Math.random()*Math.PI*2,r=idx===2?0.029:0.014;
             const x=Math.cos(a)*r,z=Math.sin(a)*r,y=-t*spec.tibiaLen;
             bristles.push(x,y,z,x*1.5,y-0.015-Math.random()*0.012,z*1.5);
@@ -1977,7 +2024,7 @@
           // 後足脛節外側附著真實顆粒感金橙色花粉團 (Pollen Pellet in Corbicula)
           if (idx === 2 && !isCompanion) {
             const basketGroup = new THREE.Group();
-            basketGroup.position.set(side * 0.033, -spec.tibiaLen * 0.55, 0);
+            basketGroup.position.set(side * 0.021, -spec.tibiaLen * (side<0?0.58:0.50), 0);
 
             const pelletGeo = new THREE.SphereGeometry(0.092, 16, 14);
             const pelletVertices = pelletGeo.attributes.position;
@@ -1986,7 +2033,7 @@
               const rough=0.0035*Math.sin(p.x*71+p.y*47)*Math.cos(p.z*63+p.x*31);
               p.addScaledVector(p.clone().normalize(),rough);pelletVertices.setXYZ(v,p.x,p.y,p.z);
             }
-            pelletGeo.scale(0.53, 0.96, 0.78);pelletGeo.computeVertexNormals();
+            pelletGeo.scale(side<0?0.39:0.46, side<0?1.05:0.86, 0.56);pelletGeo.computeVertexNormals();
             const pelletMesh = new THREE.Mesh(pelletGeo, pollenPelletMat);
             pelletMesh.castShadow = true;
 
@@ -2019,13 +2066,17 @@
 
       // 5. 寫實前翅與後翅 (Anatomical Forewings & Hindwings with Venation & Iridescence)
       const wingMat = new THREE.MeshPhysicalMaterial({
-        map: wingTex,
+        // Geometry supplies venation without a second misaligned texture overlay.
+        map: null,
         color: 0xffffff,
         transparent: true,
-        opacity: 0.58,
-        roughness: 0.42,
+        opacity: 0.23,
+        roughness: 0.19,
         metalness: 0,
-        transmission: 0.07,
+        transmission: 0.86,
+        thickness: 0.0008,
+        ior: 1.36,
+        envMapIntensity: 0.28,
         iridescence: 0.08,
         iridescenceIOR: 1.38,
         iridescenceThicknessRange: [120, 420],
@@ -2039,7 +2090,7 @@
       const rightWingPivot = new THREE.Group();
       rightWingPivot.position.set(-0.17, 0.28, 0.18);
 
-      const veinMat=new THREE.MeshStandardMaterial({color:0x5a4429,roughness:0.65});
+      const veinMat=new THREE.MeshStandardMaterial({color:0x685a42,roughness:0.7,transparent:true,opacity:0.78});
       function addWingVeins(mesh,side,fore) {
         const len=fore?1.18:0.78,wid=fore?0.42:0.28;
         function vein(points,radius) {
@@ -2047,19 +2098,19 @@
           const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(8,points.length*4),radius,5,false),veinMat);
           tube.userData.isWingVein=true;mesh.add(tube);
         }
-        vein(mesh.geometry.userData.wingOutline,0.0015);
+        vein(mesh.geometry.userData.wingOutline,0.0011);
+        // Connected longitudinal veins and cross-veins share exact graph nodes.
         const paths=[
           [[0,0],[0.30,-0.10],[0.65,-0.10],[0.94,-0.01]],
-          [[0.02,0.01],[0.30,0.18],[0.62,0.28],[0.90,0.19]],
-          [[0.04,0.05],[0.25,0.38],[0.52,0.47],[0.73,0.37]],
-          [[0.30,-0.10],[0.36,0.08],[0.34,0.20]],
-          [[0.49,-0.11],[0.52,0.08],[0.49,0.24]],
-          [[0.67,-0.10],[0.72,0.07],[0.67,0.26]],
-          [[0.34,0.20],[0.31,0.30],[0.32,0.41]],
-          [[0.56,0.26],[0.53,0.36],[0.52,0.47]]
+          [[0,0],[0.30,0.18],[0.62,0.28],[0.90,0.19]],
+          [[0,0],[0.25,0.38],[0.52,0.47],[0.73,0.37]],
+          [[0.30,-0.10],[0.34,0.07],[0.30,0.18]],
+          [[0.65,-0.10],[0.65,0.09],[0.62,0.28]],
+          [[0.30,0.18],[0.28,0.28],[0.25,0.38]],
+          [[0.62,0.28],[0.57,0.38],[0.52,0.47]]
         ];
         paths.forEach((path,i)=>vein(path.map(([u,q])=>new THREE.Vector3(
-          side*u*len,Math.sin(u*Math.PI)*0.022+0.0025,q*wid)),i<3?0.0025:0.0015));
+          side*u*len,Math.sin(u*Math.PI)*0.022+0.0025,q*wid)),i<3?0.00165:0.0010));
       }
 
       function buildRealisticWingPair(side) {
@@ -2072,10 +2123,15 @@
         const hindGeo = createAnatomicalWingGeometry(false, side);
         const hindMesh = new THREE.Mesh(hindGeo, wingMat);
         addWingVeins(hindMesh,side,false);
-        hindMesh.position.set(0, -0.015, -0.08);
-        hindMesh.rotation.y = -side * 0.46;
+        hindMesh.position.set(side*0.012, -0.016, -0.085);
+        hindMesh.rotation.y = -side * 1.05;
 
-        pairGroup.add(foreMesh, hindMesh);
+        const hinge=new THREE.Mesh(new THREE.SphereGeometry(0.025,12,8),legChitinMat);
+        hinge.scale.set(1,0.55,1.4);hinge.position.set(0,-0.007,-0.015);
+        const hindBase=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.016,0.09,10),legChitinMat);
+        hindBase.position.set(side*0.006,-0.012,-0.043);hindBase.rotation.x=Math.PI/2;
+        pairGroup.add(foreMesh, hindMesh,hinge,hindBase);
+        pairGroup.scale.set(0.86,1,0.94);
         return pairGroup;
       }
 
@@ -2123,11 +2179,11 @@
       ctx.fillStyle = gradient; ctx.fillRect(0, 0, 64, 64);
       const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
     })();
-    const footShadowMat = new THREE.MeshBasicMaterial({ map: footShadowTexture, transparent: true, depthWrite: false,
+    const footShadowMat = new THREE.MeshBasicMaterial({ map: footShadowTexture, transparent: true, opacity:0.48, depthWrite: false,
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, toneMapped: false });
     const footShadowNormal = new THREE.Vector3(0, 0, 1);
     const footShadows = Array.from({ length: 6 }, () => {
-      const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.026, 24), footShadowMat);
+      const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.012, 24), footShadowMat);
       shadow.userData.keepMaterial = true; shadow.renderOrder = 2; shadow.visible = false; shadow.raycast = () => {};
       scene.add(shadow); return shadow;
     });
@@ -2135,8 +2191,11 @@
       flower.headGroup.updateWorldMatrix(true, false);
       const support = flower.headGroup.worldToLocal(subject.landingAnchor.clone());
       const e = 0.004 * flower.scale;
-      const dx = (flowerSurfaceHeight(flower,support.x+e,support.z)-flowerSurfaceHeight(flower,support.x-e,support.z))/(2*e);
-      const dz = (flowerSurfaceHeight(flower,support.x,support.z+e)-flowerSurfaceHeight(flower,support.x,support.z-e))/(2*e);
+      // Body orientation follows the receptacle; feet resolve the individual bud surfaces.
+      const orientHeight=(x,z)=>flower.species==='sunflower'
+        ?discHeight(flower.coreRadius,flower.coreHeight,Math.hypot(x,z),flower.species):flowerSurfaceHeight(flower,x,z);
+      const dx = (orientHeight(support.x+e,support.z)-orientHeight(support.x-e,support.z))/(2*e);
+      const dz = (orientHeight(support.x,support.z+e)-orientHeight(support.x,support.z-e))/(2*e);
       const localNormal = new THREE.Vector3(-dx,1,-dz).normalize();
       const up = localNormal.clone().transformDirection(flower.headGroup.matrixWorld);
       const forward = new THREE.Vector3(0,0,1).applyQuaternion(subject.root.quaternion).projectOnPlane(up);
@@ -2155,7 +2214,7 @@
       const footLimit = splayed ? flower.coreRadius * 0.9 : Infinity;
       let legSlot = 0;
       for (const leg of subject.legs) {
-        leg.coxa.rotation.y = leg.baseYaw * (splayed ? [1.38, 1, 0.8][leg.index] : 1);
+        leg.coxa.rotation.y = (leg.baseYaw + leg.side*0.045*Math.sin(leg.index*2+leg.side)) * (splayed ? [1.38, 1, 0.65][leg.index] : 1);
         const phase = time * 2.1 + (leg.index + (leg.side < 0 ? 1 : 0)) * Math.PI;
         const lift = walking ? Math.pow(Math.max(0, Math.sin(phase)), 8) * 0.006 : 0;
         const a = leg.femurLength;
@@ -2163,13 +2222,26 @@
         const distalY = leg.tibiaLength + Math.cos(leg.tarsalAngle) * 0.1685;
         const b = Math.hypot(distalX,distalY), offset = Math.atan2(distalX,distalY);
         let reach = flower.species === 'echinacea' && leg.index === 0 ? 0.075
-          : (splayed ? [0.37,0.41,0.42] : [0.23,0.27,0.24])[leg.index];
+          : (splayed ? [0.34,0.43,0.59] : [0.23,0.27,0.24])[leg.index];
+        reach*=1+0.045*Math.sin(leg.index*2.3+leg.side);
+        if(!walking&&flower.species==='sunflower') {
+          // A resting claw targets a specific bud crown, rather than the gap between buds.
+          const tentative=new THREE.Vector3(leg.side*reach,-0.45,0)
+            .applyAxisAngle(legYAxis,leg.coxa.rotation.y).add(leg.coxa.position).applyMatrix4(modelToFlower);
+          const crown=nearestSupportFloret(flower,tentative.x,tentative.z);
+          if(crown) {
+            const target=new THREE.Vector3(crown.x,crown.y,crown.z)
+              .applyMatrix4(modelToFlower.clone().invert()).sub(leg.coxa.position);
+            leg.coxa.rotation.y=Math.atan2(-leg.side*target.z,leg.side*target.x);
+            reach=Math.hypot(target.x,target.z);
+          }
+        }
         let x = 0, y = 0, cosine = 0, foot = null;
         // Pull a foot back toward the body until it stays on the disc and within leg length.
         for (let attempt = 0; attempt < 6; attempt++) {
           x = leg.side * (reach + (walking ? Math.cos(phase) * 0.012 : 0));
           const footAt = height => new THREE.Vector3(x,height,0).applyAxisAngle(legYAxis,leg.coxa.rotation.y).add(leg.coxa.position).applyMatrix4(modelToFlower);
-          const sample = height => { const point = footAt(height); return point.y - flowerSurfaceHeight(flower,point.x,point.z) - lift; };
+          const sample = height => { const point = footAt(height); return point.y - flowerSurfaceHeight(flower,point.x,point.z) - 0.0005*flower.scale - lift; };
           let lo = -0.9, hi = -0.12;
           // A tepal curling up beside the body can rise above the hinge; widen the bracket so the foot rests on it.
           while (hi < 0.2 && sample(hi) < 0) hi += 0.08;
@@ -2821,7 +2893,7 @@
           m.map=null;m.bumpMap=null;m.normalMap=null;m.wireframe=false;
           if(m.color)m.color.setHex(onBee?0x68777d:0x586353);
           if(object.isLineSegments)m.opacity*=0.35;
-          if(m.emissive)m.emissive.setHex(0);
+          if(m.emissive){m.emissive.setHex(onBee?0x0b1013:0x20251c);m.emissiveIntensity=0.65;}
           if('roughness' in m)m.roughness=0.95;
           if('envMapIntensity' in m)m.envMapIntensity=0.12;
           if('metalness' in m)m.metalness=0;
@@ -2830,11 +2902,14 @@
         });
         diagnosticMaterials.push({object,original,temporary});
         object.material=Array.isArray(original)?temporary:temporary[0];
-        const flowerSurface=object.userData.type==='flower';
-        if(object.isMesh&&(onBee||flowerSurface)&&!object.isInstancedMesh&&materials.some(m=>m.opacity>=0.01)) {
-          const edge=new THREE.LineSegments(new THREE.WireframeGeometry(object.geometry),
+        const flowerSurface=object.userData.type==='flower'||flowersList.some(f=>object===f.coreMesh||object.parent===f.stamenGroup);
+        // Keep the complete opaque floret surfaces as contact context. Thousands of
+        // superimposed tiny triangle edges obscure claw intersections; the bee retains its mesh overlay.
+        if(flowerSurface&&object.isInstancedMesh)temporary.forEach(m=>{m.wireframe=false;m.color.setHex(0x8b927d);});
+        if(object.isMesh&&(onBee||flowerSurface)&&!object.isInstancedMesh&&!object.userData.isSetae&&!object.userData.isWingVein&&materials.some(m=>m.opacity>=0.01)) {
+          const edge=new THREE.LineSegments(object.userData.isWingVein?new THREE.EdgesGeometry(object.geometry,25):new THREE.WireframeGeometry(object.geometry),
             new THREE.LineBasicMaterial({color:onBee?0xb4dbe2:0x82927d,transparent:true,
-              opacity:object.userData.isWingVein?0.24:onBee?0.48:0.14,depthWrite:false}));
+              opacity:object.userData.isSetae?0.05:object.userData.isWingVein?0.12:onBee?(object.geometry.attributes.position.count>1000?0.11:0.44):0.10,depthWrite:false}));
           edge.raycast=()=>{};object.add(edge);diagnosticEdges.push(edge);
         }
       }
@@ -2848,8 +2923,8 @@
       setSceneWireframe(false);
       bloomEnabled = false;
       bokehPass.enabled = viewType === 'macro_closeup' || viewType === 'flower_portrait';
-      bokehPass.uniforms.aperture.value = viewType === 'flower_portrait' ? 0.00065 : 0.0017;
-      bokehPass.uniforms.maxblur.value = viewType === 'flower_portrait' ? 0.007 : 0.012;
+      bokehPass.uniforms.aperture.value = viewType === 'flower_portrait' ? 0.00065 : 0.00012;
+      bokehPass.uniforms.maxblur.value = viewType === 'flower_portrait' ? 0.007 : 0.002;
 
       // 將蜜蜂精準置於向日葵 (flower #0) 花蕊頂端進行採蜜姿態，且花粉籃飽滿，方便特寫與防穿模檢驗
       const f0 = flowersList[THREE.MathUtils.clamp(flowerIndex, 0, flowersList.length - 1)];
@@ -2876,7 +2951,7 @@
       bee.model.rotation.set(0.14, 0, 0);
       bee.proboscis.scale.z = 0.3;
       bee.wingBlur.forEach(sample=>{sample.group.visible=false;});
-      bee.wingMaterial.opacity=0.58;
+      bee.wingMaterial.opacity=0.23;
       bee.leftWing.rotation.set(0.02, 1.22, 0.15);
       bee.rightWing.rotation.set(0.02, -1.22, -0.15);
       bee.pollenBaskets.forEach((b) => b.scale.setScalar(1.05));
@@ -2897,19 +2972,19 @@
       } else if (viewType === 'top_down') {
         // 1. 俯視圖：檢視場景整體佈局、向日葵與菊科費馬螺線花盤、3D 飛行路線
         camera.up.set(0, 0, -1);
-        camera.position.set(0.5, 19.5, 0.8);
-        camera.lookAt(0.5, 2.0, 0.5);
+        camera.position.copy(f0.coreWorldPos).add(new THREE.Vector3(0,7.4,0.06));
+        camera.lookAt(f0.coreWorldPos);
       } else if (viewType === 'macro_closeup') {
         // 2. 微距特寫：近距離檢視西方蜜蜂複眼六角小眼面、胸部 3D 絨毛、解剖學腹部背板條紋、翅脈、花粉籃與向日葵費馬螺線小花
         inspectBee(0.76,0.52,0.34,-0.025);
       } else if (viewType === 'low_angle_anti_clip') {
         // 3. 低角度防穿模視角：自正前方略高處俯視花盤，前、中足伸出身體輪廓並以跗節、爪與接觸陰影踏在小花頂端，兩側後足花粉籃可見
-        inspectBee(0.10,0.26,0.80,-0.09);
+        inspectBee(0.16,0.23,0.88,-0.075);
       } else if (viewType === 'wireframe') {
         // 4. 線框拓樸圖：自左前上方檢視（與右側的特寫互補），左側三足由胸部至跗節完整可見，並檢視花瓣網格與費馬螺線小花
         setSceneWireframe(true);
         bloomEnabled = false;
-        inspectBee(-0.62,0.42,0.42,-0.06);
+        inspectBee(-0.73,0.27,0.56,-0.065);
       }
 
       if (viewType !== 'flower_portrait') bokehPass.uniforms.focus.value = camera.position.distanceTo(bee.root.position);
@@ -3268,7 +3343,7 @@
       const flying = ['MORNING_SORTIE', 'FLYING_TO_FLOWER', 'FLYING_TO_HIVE'].includes(beeState.mode);
       const strokePhase = elapsed * Math.PI * 2 * 200;
       const flapAngle = Math.sin(strokePhase) * 0.88 + 0.1;
-      bee.wingMaterial.opacity = flying ? 0.25 : 0.58;
+      bee.wingMaterial.opacity = flying ? 0.15 : 0.23;
       bee.wingBlur.forEach(sample=>{
         sample.group.visible=flying;
         sample.group.rotation.set(Math.cos(strokePhase+sample.phase)*0.12,sample.side*0.15,sample.side*(Math.sin(strokePhase+sample.phase)*0.88+0.1));

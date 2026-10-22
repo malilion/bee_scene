@@ -1,0 +1,46 @@
+{
+  "views": [
+    {
+      "view": "top_down",
+      "score": 7,
+      "evidence": "Sunflower silhouette and bee-to-flower scale are plausible. Petals repeat similar pointed shapes and have flat, uniformly yellow surfaces; the disk reads as a dark circular insert with a sharply defined yellow border. Repetitive grass and hard shadows weaken natural composition. Bee anatomy is only weakly readable at this scale.",
+      "imageSha256": "400cc43a1f615fd59c5d47efabf1bad60ce585cbc76ca3c7bc60ec0b52c716bb"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 5.5,
+      "evidence": "Head, thorax and striped abdomen are recognizable, but the thorax resembles a smooth olive sphere with scattered bright bristles rather than dense bee fur. Abdomen texture looks scratched and streaked across rigid bands. Eyes are smooth dark lobes. Wings have faint, broken-looking veins and poorly resolved attachments. Enlarged disk florets repeat like blunt pegs; petals appear thick and waxy.",
+      "imageSha256": "1f22d5b47c81c46d88922e0c3cc02883c7b20891c8cc5f1b922c085aa3d7a3f8"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 6,
+      "evidence": "Three leg paths on each side are broadly discernible, and the head remains above the disk without obvious major penetration. However, feet disappear among florets, leaving support contacts unclear. Legs look angular and wiry, with conspicuous spherical joints. The oversized smooth face and nearly bare thorax dominate the silhouette; paired wings are visible but overlapping hindwing structure is difficult to distinguish.",
+      "imageSha256": "106ec868da1b13243e52af1d1a5c42b92f283518e2f94789fbb0f94af3aea856"
+    },
+    {
+      "view": "wireframe",
+      "score": 5.5,
+      "evidence": "Main body meshes have readable silhouettes without obvious extreme stretching. Several near-side legs terminate in exposed rounded ends separated from the thorax silhouette, giving a visibly disconnected assembly. Wing roots overlap densely, while far-side legs are obscured. Dense disk geometry creates substantial visual noise and makes foot intersections difficult to inspect.",
+      "imageSha256": "4dbee1cb42a54334556514294bbe5cb905b6c2019b312ef6ec56136c70ba86f8"
+    }
+  ],
+  "blockers": [
+    "Wireframe shows apparently disconnected near-side leg roots; anatomical mesh continuity is not credible."
+  ],
+  "repairs": [
+    "Connect all six leg roots visibly to anatomically positioned thoracic sockets; replace exposed ball-ended assemblies with continuous articulated segments.",
+    "Place segmented tarsi against individual disk florets and make each supporting contact inspectable without burying the feet.",
+    "Rebuild thoracic fur as dense, short, directionally varied hair with a soft silhouette; reduce isolated bright bristles and scratched abdomen texture.",
+    "Refine head proportions, eye integration, abdominal segmentation and thin forewing/hindwing attachments; give wings coherent branching veins.",
+    "Vary petal curvature, width, tip shape and overlap; add restrained longitudinal detail and believable thin-surface lighting.",
+    "Replace uniformly peg-shaped disk elements with differentiated florets and a less abrupt perimeter; reduce repetitive grass patterns and improve material/light separation."
+  ],
+  "roundId": "2026-10-22T16-00-54-392Z-78ffba",
+  "artifactSha256": "3fec4682dd992e34e462ca6e6b3cf3be7c45a278047b9257c555b5aa42d8605d",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "codex exec read-only ephemeral",
+    "runId": "01a16459-a881-7253-932d-7ce4984533cf"
+  }
+}

@@ -1,0 +1,8 @@
+Updated only `bee_scene.html`:
+
+- Refined head anatomy, eye facets, antenna placement and shortened mouthparts.
+- Adjusted body proportions, abdominal seams, wings and leg support.
+- Added varied sunflower florets, radial coloring, anthers and pollen.
+- Increased vegetation and improved diagnostic framing and focus.
+
+Node syntax and diff checks pass. No build, render or critics invoked. Six-leg visibility, contact and final visual quality remain unverified pending the parent’s capture and review.

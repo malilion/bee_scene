@@ -1,0 +1,47 @@
+{
+  "views": [
+    {
+      "view": "top_down",
+      "score": 6.5,
+      "evidence": "Sunflower silhouette and bee-to-flower scale are plausible. Petals form repetitive, broad pointed layers with uniform yellow shading and conspicuous overlaps. The disk has a harsh yellow perimeter and densely stippled center. Repeated grass clumps and angular ground shadows weaken natural composition; the bee is too small here for detailed anatomy assessment.",
+      "imageSha256": "0dc540562127a78b33d15cbd0968d216ab286397cf6cd67d9805c0297a47105e"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 4.5,
+      "evidence": "Thorax hair appears as large black square flecks over a smooth tan shell, with similar artifacts on the head. The abdomen resembles a glossy textured barrel with strongly outlined bands. Eyes and head look smooth and simplified. Wings are translucent but faint, with weak vein definition. Repeated seed-like disk elements and broad, uniformly shaded petals remain visibly procedural.",
+      "imageSha256": "4768ee0b8e1af97bf8fd3e9feffc8b61e48407fa5a18c43dcdcc0d343b7d62dd"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 5,
+      "evidence": "Bilateral legs, pollen loads, antennae and wing silhouettes are visible, and the body has apparent clearance above the disk. However, overlapping legs and dark florets obscure several foot contacts, preventing confident verification of all six supports. The face is an oversized smooth shield with sparse black flecks; thorax flecks dominate its surface. Antennae appear thick and largely straight.",
+      "imageSha256": "a0f2dbd0c60761c360b8d54a2c618da8580d66f77e1d0089e49b96c224d1a7af"
+    },
+    {
+      "view": "wireframe",
+      "score": 6,
+      "evidence": "Major body meshes and thin wing outlines are visible without obvious extreme stretching. Dense overlapping triangles obscure wing roots, thorax connections and far-side legs. Several limbs cannot be traced continuously from attachment to foot. The flower disk remains shaded, making foot penetration difficult to judge. Petal topology is highly regular and visually dense.",
+      "imageSha256": "b3419dccf193f5098603f26a1d34f6a7447f3d49ba068b85ae9397324c14c61f"
+    }
+  ],
+  "blockers": [
+    "Prominent square-like hair artifacts on the thorax and head materially prevent a credible realistic honeybee.",
+    "Six complete leg attachment-to-contact paths cannot be verified confidently from the low-angle and wireframe evidence."
+  ],
+  "repairs": [
+    "Replace black square-like hair marks with fine tapered strands or correctly blended hair cards; vary length, direction and warm coloration while preserving a soft silhouette.",
+    "Refine head proportions, mouthparts and elbowed antennae; give chitin restrained highlights and reduce the abdomen's barrel-like gloss and heavy band boundaries.",
+    "Make all six leg chains and their flower contacts inspectable through improved diagnostic framing and clearer joint separation; resolve any revealed floating feet or penetrations.",
+    "Improve wing membrane and vein readability with restrained transparency and anatomically coherent forewing and hindwing shapes.",
+    "Introduce natural petal variation, subtle longitudinal structure and thinner edges; soften the disk's bright perimeter and reduce identical repeated floret forms.",
+    "Provide a clearer topology view of leg roots, wing roots and the flower contact surface, with less overlapping wire clutter."
+  ],
+  "roundId": "2026-10-22T15-57-44-412Z-747b2f",
+  "artifactSha256": "aed77b70d00540f7c1b6a6784af7b306f0950fe8f5a2f61b9498e2f7757e1e09",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "codex exec read-only ephemeral",
+    "runId": "01a16456-7222-75c1-9853-17bcafadc114"
+  }
+}
