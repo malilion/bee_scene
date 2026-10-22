@@ -1,0 +1,12 @@
+{
+  "roundId": "2026-10-22T11-07-36Z-claude-r2",
+  "status": "rejected",
+  "mean": 4.75,
+  "scores": {
+    "top_down": 5,
+    "macro_closeup": 5,
+    "low_angle_anti_clip": 4,
+    "wireframe": 5
+  },
+  "blockerCount": 4
+}

@@ -1,0 +1,190 @@
+{
+  "roundId": "2026-10-22T11-15-47Z-claude-r3",
+  "source": "bee_scene.html (working tree, served over HTTP)",
+  "sourceSha256": "d305362daf5adde387df96001ccfbf60079b5e343c4c2d2994d101d44117a4aa",
+  "capture": "headless Chromium (SwiftShader) via Playwright, Linux",
+  "viewport": {
+    "width": 1280,
+    "height": 960
+  },
+  "seed": 7331,
+  "flowerIndex": 0,
+  "pose": "FORAGING",
+  "images": [
+    {
+      "view": "top_down",
+      "path": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/top_down.png",
+      "sha256": "04fcdca25bf96d2d2f0c1e5f981b14f0fd9bd673ba624c935ed0a65223ab78f0",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -2.011346894315036e-06,
+          "radial": 0.13533995915207117
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": 3.06101242730783e-06,
+          "radial": 0.16393151582469567
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": 1.1800853105814468e-06,
+          "radial": 0.19385469698700686
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -5.339054266473298e-06,
+          "radial": 0.22149224488825037
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": 1.134773861966032e-05,
+          "radial": 0.25768081339138216
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": -4.869425125786364e-06,
+          "radial": 0.2779643604227995
+        }
+      ]
+    },
+    {
+      "view": "macro_closeup",
+      "path": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/macro_closeup.png",
+      "sha256": "56e111aaef6c0b6f58e7a9f6af21dbafd87ef3a8ff7d294f4a9a50d4db7318bc",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -2.011346894315036e-06,
+          "radial": 0.13533995915207117
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": 3.06101242730783e-06,
+          "radial": 0.16393151582469567
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": 1.1800853105814468e-06,
+          "radial": 0.19385469698700686
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -5.339054266473298e-06,
+          "radial": 0.22149224488825037
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": 1.134773861966032e-05,
+          "radial": 0.25768081339138216
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": -4.869425125786364e-06,
+          "radial": 0.2779643604227995
+        }
+      ]
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "path": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/low_angle_anti_clip.png",
+      "sha256": "39addbf6b3996d837a985ec5a77c47e1467f7c3ed4f54f1c59a9578a0351dd90",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -2.011346894315036e-06,
+          "radial": 0.13533995915207117
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": 3.06101242730783e-06,
+          "radial": 0.16393151582469567
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": 1.1800853105814468e-06,
+          "radial": 0.19385469698700686
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -5.339054266473298e-06,
+          "radial": 0.22149224488825037
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": 1.134773861966032e-05,
+          "radial": 0.25768081339138216
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": -4.869425125786364e-06,
+          "radial": 0.2779643604227995
+        }
+      ]
+    },
+    {
+      "view": "wireframe",
+      "path": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/wireframe.png",
+      "sha256": "a974f4c736a8ff4b4ab53f8b2693d98fb01276e324f21900eff609260d920efc",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -2.011346894315036e-06,
+          "radial": 0.13533995915207117
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": 3.06101242730783e-06,
+          "radial": 0.16393151582469567
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": 1.1800853105814468e-06,
+          "radial": 0.19385469698700686
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -5.339054266473298e-06,
+          "radial": 0.22149224488825037
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": 1.134773861966032e-05,
+          "radial": 0.25768081339138216
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": -4.869425125786364e-06,
+          "radial": 0.2779643604227995
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "reviewer": "Claude subagent (independent, read-only)",
+  "note": "After this capture, bee_scene.html changed only in comments and in an equivalent rewrite of the body clearance expression (same values); the rendered scene is unchanged."
+}

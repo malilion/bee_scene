@@ -1,14 +1,15 @@
 {
-  "roundId": "2026-10-22T09-58-08-894Z-cfbbcf",
+  "roundId": "2026-10-22T11-15-47Z-claude-r3",
   "status": "rejected",
-  "mean": 6.125,
-  "issues": [
-    "Below 9 or invalid score: top_down",
-    "Below 9 or invalid score: macro_closeup",
-    "Below 9 or invalid score: low_angle_anti_clip",
-    "Below 9 or invalid score: wireframe",
-    "Unresolved blockers or missing blocker assessment"
-  ],
-  "review": "D:\\test\\.quality\\rounds\\2026-10-22T09-58-08-894Z-cfbbcf\\review.json",
-  "manifest": "D:\\test\\.quality\\rounds\\2026-10-22T09-58-08-894Z-cfbbcf\\manifest.json"
+  "mean": 5.625,
+  "scores": {
+    "top_down": 5.5,
+    "macro_closeup": 6,
+    "low_angle_anti_clip": 5.5,
+    "wireframe": 5.5
+  },
+  "blockerCount": 3,
+  "review": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/review.json",
+  "manifest": ".quality/rounds/2026-10-22T11-15-47Z-claude-r3/manifest.json",
+  "reviewer": "Claude subagent (independent, read-only)"
 }

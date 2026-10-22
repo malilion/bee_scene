@@ -2035,20 +2035,23 @@
 
       // 一對上顎 (Mandibles) 與可伸展長喙口器 (Proboscis: Galea + Labial Palps + Glossa)
       for (const side of [-1, 1]) {
-        const mandible = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.11, 8), legChitinMat);
-        mandible.position.set(side * 0.06, -0.21, 0.08);
-        mandible.rotation.z = side * 0.45;
+        // Small mandibles tucked against the face so they do not read as leg stubs.
+        const mandible = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.065, 8), legChitinMat);
+        mandible.position.set(side * 0.045, -0.2, 0.1);
+        mandible.rotation.z = -side * 0.35;
         mandible.rotation.x = 0.35;
         headGroup.add(mandible);
       }
 
       const proboscisPivot = new THREE.Group();
       proboscisPivot.position.set(0, -0.2, 0.1);
-      proboscisPivot.rotation.x = 0.55;
-      const glossaGeo = new THREE.CylinderGeometry(0.008, 0.024, 0.62, 10);
+      proboscisPivot.rotation.x = 1.05; // Feeding glossa reaches down into the florets below the head.
+      // The glossa is a slender, pale amber tongue, unlike the dark chitin of the legs.
+      const glossaGeo = new THREE.CylinderGeometry(0.005, 0.015, 0.62, 10);
       glossaGeo.rotateX(Math.PI / 2);
       glossaGeo.translate(0, 0, 0.31);
-      const glossaMesh = new THREE.Mesh(glossaGeo, legChitinMat);
+      const glossaMat = new THREE.MeshStandardMaterial({ color: 0xc89a5a, roughness: 0.5, metalness: 0 });
+      const glossaMesh = new THREE.Mesh(glossaGeo, glossaMat);
       proboscisPivot.add(glossaMesh);
       proboscisPivot.scale.set(1, 1, 0.01);
       headGroup.add(proboscisPivot);
@@ -2243,7 +2246,7 @@
             const basketGroup = new THREE.Group();
             basketGroup.position.set(side * 0.033, -spec.tibiaLen * 0.55, 0);
 
-            const pelletGeo = new THREE.SphereGeometry(0.115, 16, 14);
+            const pelletGeo = new THREE.SphereGeometry(0.092, 16, 14);
             const pelletVertices = pelletGeo.attributes.position;
             for (let v=0;v<pelletVertices.count;v++) {
               const p=new THREE.Vector3().fromBufferAttribute(pelletVertices,v);
@@ -2379,6 +2382,22 @@
     // ==========================================
     // Leg targets are intersected with the moving flower in the leg's hinge plane.
     const legYAxis = new THREE.Vector3(0, 1, 0);
+    // Soft contact occlusion under each planted tarsus makes support readable at macro scale.
+    const footShadowTexture = (() => {
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64;
+      const ctx = canvas.getContext('2d'), gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gradient.addColorStop(0, 'rgba(14,9,3,0.9)'); gradient.addColorStop(0.5, 'rgba(14,9,3,0.5)'); gradient.addColorStop(1, 'rgba(18,12,4,0)');
+      ctx.fillStyle = gradient; ctx.fillRect(0, 0, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+    })();
+    const footShadowMat = new THREE.MeshBasicMaterial({ map: footShadowTexture, transparent: true, depthWrite: false,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, toneMapped: false });
+    const footShadowNormal = new THREE.Vector3(0, 0, 1);
+    const footShadows = Array.from({ length: 6 }, () => {
+      const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.026, 24), footShadowMat);
+      shadow.userData.keepMaterial = true; shadow.renderOrder = 2; shadow.visible = false; shadow.raycast = () => {};
+      scene.add(shadow); return shadow;
+    });
     function poseBeeOnFlower(subject, flower, time = 0, walking = false) {
       flower.headGroup.updateWorldMatrix(true, false);
       const support = flower.headGroup.worldToLocal(subject.landingAnchor.clone());
@@ -2390,32 +2409,55 @@
       const forward = new THREE.Vector3(0,0,1).applyQuaternion(subject.root.quaternion).projectOnPlane(up);
       if(forward.lengthSq()<0.0001)forward.set(1,0,0).projectOnPlane(up);
       forward.normalize();const right = new THREE.Vector3().crossVectors(up,forward).normalize();
-      const clearance = flower.species === 'lily' ? 0.14 : flower.species === 'echinacea' ? 0.12 : 0.145;
+      const clearance = flower.species === 'lily' ? 0.14 : 0.12;
       support.y=flowerSurfaceHeight(flower,support.x,support.z);
       subject.root.position.copy(flower.headGroup.localToWorld(support)).addScaledVector(up,clearance);
       subject.root.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,up,forward));
       subject.model.rotation.set(0,0,0);
       subject.root.updateMatrixWorld(true);
       const modelToFlower = flower.headGroup.matrixWorld.clone().invert().multiply(subject.model.matrixWorld);
+      // Disc florets carry a wide, splayed stance so each tarsus lands outside the
+      // body silhouette; lily tepals keep the narrow stance their cupped surface allows.
+      const splayed = flower.species !== 'lily';
+      const footLimit = splayed ? flower.coreRadius * 0.9 : Infinity;
+      let legSlot = 0;
       for (const leg of subject.legs) {
-        leg.coxa.rotation.y = leg.baseYaw;
+        leg.coxa.rotation.y = leg.baseYaw * (splayed ? [1.38, 1, 0.8][leg.index] : 1);
         const phase = time * 2.1 + (leg.index + (leg.side < 0 ? 1 : 0)) * Math.PI;
         const lift = walking ? Math.pow(Math.max(0, Math.sin(phase)), 8) * 0.006 : 0;
-        const reach = flower.species === 'echinacea' && leg.index === 0 ? 0.075 : [0.23,0.27,0.24][leg.index];
-        const x = leg.side * (reach + (walking ? Math.cos(phase) * 0.012 : 0));
-        const sample = y => {
-          const point = new THREE.Vector3(x,y,0).applyAxisAngle(legYAxis,leg.coxa.rotation.y).add(leg.coxa.position).applyMatrix4(modelToFlower);
-          return point.y - flowerSurfaceHeight(flower,point.x,point.z) - lift;
-        };
-        let lo = -0.9, hi = -0.12;
-        for (let i = 0; i < 13; i++) { const mid=(lo+hi)/2; if(sample(mid)>0)hi=mid;else lo=mid; }
-        const y = (lo+hi)/2, a = leg.femurLength;
+        const a = leg.femurLength;
         const distalX = Math.sin(leg.tarsalAngle) * 0.1685;
         const distalY = leg.tibiaLength + Math.cos(leg.tarsalAngle) * 0.1685;
         const b = Math.hypot(distalX,distalY), offset = Math.atan2(distalX,distalY);
-        const bend = -leg.side * Math.acos(THREE.MathUtils.clamp((x*x+y*y-a*a-b*b)/(2*a*b),-0.9999,0.9999));
+        let reach = flower.species === 'echinacea' && leg.index === 0 ? 0.075
+          : (splayed ? [0.37,0.41,0.42] : [0.23,0.27,0.24])[leg.index];
+        let x = 0, y = 0, cosine = 0, foot = null;
+        // Pull a foot back toward the body until it stays on the disc and within leg length.
+        for (let attempt = 0; attempt < 6; attempt++) {
+          x = leg.side * (reach + (walking ? Math.cos(phase) * 0.012 : 0));
+          const footAt = height => new THREE.Vector3(x,height,0).applyAxisAngle(legYAxis,leg.coxa.rotation.y).add(leg.coxa.position).applyMatrix4(modelToFlower);
+          const sample = height => { const point = footAt(height); return point.y - flowerSurfaceHeight(flower,point.x,point.z) - lift; };
+          let lo = -0.9, hi = -0.12;
+          // A tepal curling up beside the body can rise above the hinge; widen the bracket so the foot rests on it.
+          while (hi < 0.2 && sample(hi) < 0) hi += 0.08;
+          for (let i = 0; i < 13; i++) { const mid=(lo+hi)/2; if(sample(mid)>0)hi=mid;else lo=mid; }
+          y = (lo+hi)/2;
+          cosine = (x*x+y*y-a*a-b*b)/(2*a*b);
+          foot = footAt(y);
+          if ((cosine < 0.995 && Math.hypot(foot.x, foot.z) <= footLimit) || reach <= 0.2) break;
+          reach = Math.max(0.2, reach * 0.88);
+        }
+        const bend = -leg.side * Math.acos(THREE.MathUtils.clamp(cosine,-0.9999,0.9999));
         leg.coxa.rotation.z = Math.atan2(x,-y) - Math.atan2(b*Math.sin(bend),a+b*Math.cos(bend));
         leg.tibia.rotation.z = bend - offset;
+        if (subject === bee) {
+          const shadow = footShadows[legSlot];
+          foot.y = flowerSurfaceHeight(flower, foot.x, foot.z);
+          shadow.position.copy(flower.headGroup.localToWorld(foot)).addScaledVector(up, 0.003);
+          shadow.quaternion.setFromUnitVectors(footShadowNormal, up);
+          shadow.visible = true;
+        }
+        legSlot++;
       }
       subject.root.updateMatrixWorld(true);
       if(subject===bee)updateContactLighting(subject.root.position);
@@ -2425,7 +2467,7 @@
       subject.root.updateMatrixWorld(true); flower.headGroup.updateWorldMatrix(true,false);
       return subject.legs.map(leg=>{
         const p=leg.foot.getWorldPosition(new THREE.Vector3());flower.headGroup.worldToLocal(p);
-        return {side:leg.side,index:leg.index,clearance:p.y-flowerSurfaceHeight(flower,p.x,p.z)};
+        return {side:leg.side,index:leg.index,clearance:p.y-flowerSurfaceHeight(flower,p.x,p.z),radial:Math.hypot(p.x,p.z)/flower.coreRadius};
       });
     }
 
@@ -3034,7 +3076,7 @@
       if(!enabled)return;
       const beeParts=new Set();bee.model.traverse(object=>beeParts.add(object));
       const objects=[];scene.traverse(object=>{
-        if((object.isMesh||(object.isLineSegments&&beeParts.has(object)))&&object.material)objects.push(object);
+        if((object.isMesh||(object.isLineSegments&&beeParts.has(object)))&&object.material&&!object.userData.keepMaterial)objects.push(object);
       });
       for(const object of objects) {
         const onBee=beeParts.has(object),original=object.material;
@@ -3091,7 +3133,7 @@
       beeState.mode = 'FORAGING';
       beeState.targetFlowerIdx = f0.index;
       beeState.pollenLoad = 2.6;
-      beeState.proboscisExt = 0.95;
+      beeState.proboscisExt = 0.36;
       updateStatsUI();
 
       // 先給定降落參考點，再由花面法線與足部求解器調整實際姿態。
@@ -3099,7 +3141,7 @@
       bee.root.up.set(0, 1, 0);
       bee.root.lookAt(exactCoreTop.x + 0.5, exactCoreTop.y + 0.18, exactCoreTop.z - 0.2);
       bee.model.rotation.set(0.14, 0, 0);
-      bee.proboscis.scale.z = 0.95;
+      bee.proboscis.scale.z = 0.36;
       bee.wingBlur.forEach(sample=>{sample.group.visible=false;});
       bee.wingMaterial.opacity=0.58;
       bee.leftWing.rotation.set(0.02, 1.22, 0.15);
@@ -3128,13 +3170,13 @@
         // 2. 微距特寫：近距離檢視西方蜜蜂複眼六角小眼面、胸部 3D 絨毛、解剖學腹部背板條紋、翅脈、花粉籃與向日葵費馬螺線小花
         inspectBee(0.76,0.52,0.34,-0.025);
       } else if (viewType === 'low_angle_anti_clip') {
-        // 3. 低角度防穿模視角：平視花盤表面與草地底座，確認蜜蜂六足踏於花蕊表面、口器探入小花、花莖與葉片銜接緊密不浮空不穿模
-        inspectBee(0.72,0.21,0.56,-0.07);
+        // 3. 低角度防穿模視角：自正前方略高處俯視花盤，前、中足伸出身體輪廓並以跗節、爪與接觸陰影踏在小花頂端，兩側後足花粉籃可見
+        inspectBee(0.10,0.26,0.80,-0.09);
       } else if (viewType === 'wireframe') {
-        // 4. 線框拓樸圖：檢視花瓣彎曲網格、費馬螺線小花、解剖學流線腹部與六足關節拓樸
+        // 4. 線框拓樸圖：自左前上方檢視（與右側的特寫互補），左側三足由胸部至跗節完整可見，並檢視花瓣網格與費馬螺線小花
         setSceneWireframe(true);
         bloomEnabled = false;
-        inspectBee(0.65,0.45,0.40,-0.045);
+        inspectBee(-0.62,0.42,0.42,-0.06);
       }
 
       if (viewType !== 'flower_portrait') bokehPass.uniforms.focus.value = camera.position.distanceTo(bee.root.position);
@@ -3334,7 +3376,7 @@
         bee.model.rotation.z = THREE.MathUtils.lerp(bee.model.rotation.z, 0, 0.18);
         bee.model.rotation.x = THREE.MathUtils.lerp(bee.model.rotation.x, 0.16, 0.18);
 
-        beeState.proboscisExt = THREE.MathUtils.lerp(beeState.proboscisExt, 1.0, 0.18);
+        beeState.proboscisExt = THREE.MathUtils.lerp(beeState.proboscisExt, 0.36, 0.18);
 
         if (Math.random() < 0.035) {
           triggerPollenBurst(liveCorePos, 1, 0xc4a75c);
@@ -3534,6 +3576,7 @@
         leg.tibia.rotation.z = leg.baseTibiaZ - swing * 0.8 * leg.side;
       });
       if (beeState.mode === 'FORAGING') poseBeeOnFlower(bee,flowersList[beeState.targetFlowerIdx],elapsed,true);
+      else footShadows.forEach(shadow => { shadow.visible = false; });
 
       // E. 粒子更新
       const posAttr = ambientPollen.geo.attributes.position;

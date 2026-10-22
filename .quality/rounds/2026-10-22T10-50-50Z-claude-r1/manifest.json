@@ -1,0 +1,189 @@
+{
+  "roundId": "2026-10-22T10-50-50Z-claude-r1",
+  "source": "bee_scene.html (working tree, served over HTTP)",
+  "sourceSha256": "d1e9acb1296a5ccff87aa0e0601256427b5180e8c3a8affd746b6c313ef8eb01",
+  "capture": "headless Chromium (SwiftShader) via Playwright, Linux",
+  "viewport": {
+    "width": 1280,
+    "height": 960
+  },
+  "seed": 7331,
+  "flowerIndex": 0,
+  "pose": "FORAGING",
+  "images": [
+    {
+      "view": "top_down",
+      "path": ".quality/rounds/2026-10-22T10-50-50Z-claude-r1/top_down.png",
+      "sha256": "9140d1ead13df1cd63c4a98c2a05c07103fa4d901166d4263c68bf5a62ebce36",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -1.3305705196531292e-05,
+          "radial": 0.14333884013351852
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": -6.8090060716397005e-06,
+          "radial": 0.17172595730844942
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": -4.901184955496962e-06,
+          "radial": 0.20417969234043748
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -7.123480036175245e-06,
+          "radial": 0.2320603768113356
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": -1.8631595601337203e-06,
+          "radial": 0.27053751917136315
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": 8.24100954754936e-06,
+          "radial": 0.2879114529550526
+        }
+      ]
+    },
+    {
+      "view": "macro_closeup",
+      "path": ".quality/rounds/2026-10-22T10-50-50Z-claude-r1/macro_closeup.png",
+      "sha256": "2d91c08622b1f8ddbed4182c35fd9e49632ff52ed1db365867b5768539ffd96f",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -1.3305705196531292e-05,
+          "radial": 0.14333884013351852
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": -6.8090060716397005e-06,
+          "radial": 0.17172595730844942
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": -4.901184955496962e-06,
+          "radial": 0.20417969234043748
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -7.123480036175245e-06,
+          "radial": 0.2320603768113356
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": -1.8631595601337203e-06,
+          "radial": 0.27053751917136315
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": 8.24100954754936e-06,
+          "radial": 0.2879114529550526
+        }
+      ]
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "path": ".quality/rounds/2026-10-22T10-50-50Z-claude-r1/low_angle_anti_clip.png",
+      "sha256": "7b9504d075eb6ffe945d8c473da6eebaa9626da4a5ad71d766fd971cd4df2d86",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -1.3305705196531292e-05,
+          "radial": 0.14333884013351852
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": -6.8090060716397005e-06,
+          "radial": 0.17172595730844942
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": -4.901184955496962e-06,
+          "radial": 0.20417969234043748
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -7.123480036175245e-06,
+          "radial": 0.2320603768113356
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": -1.8631595601337203e-06,
+          "radial": 0.27053751917136315
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": 8.24100954754936e-06,
+          "radial": 0.2879114529550526
+        }
+      ]
+    },
+    {
+      "view": "wireframe",
+      "path": ".quality/rounds/2026-10-22T10-50-50Z-claude-r1/wireframe.png",
+      "sha256": "91c891799ce0589a987f54a958e30971c224b2562419fcee1de024700adf05d6",
+      "footContacts": [
+        {
+          "side": -1,
+          "index": 0,
+          "clearance": -1.3305705196531292e-05,
+          "radial": 0.14333884013351852
+        },
+        {
+          "side": 1,
+          "index": 0,
+          "clearance": -6.8090060716397005e-06,
+          "radial": 0.17172595730844942
+        },
+        {
+          "side": -1,
+          "index": 1,
+          "clearance": -4.901184955496962e-06,
+          "radial": 0.20417969234043748
+        },
+        {
+          "side": 1,
+          "index": 1,
+          "clearance": -7.123480036175245e-06,
+          "radial": 0.2320603768113356
+        },
+        {
+          "side": -1,
+          "index": 2,
+          "clearance": -1.8631595601337203e-06,
+          "radial": 0.27053751917136315
+        },
+        {
+          "side": 1,
+          "index": 2,
+          "clearance": 8.24100954754936e-06,
+          "radial": 0.2879114529550526
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "reviewer": "Claude subagent (independent, read-only)"
+}

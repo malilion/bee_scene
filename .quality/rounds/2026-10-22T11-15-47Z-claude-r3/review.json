@@ -1,0 +1,49 @@
+{
+  "roundId": "2026-10-22T11-15-47Z-claude-r3",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "Claude subagent (read-only, images and rubric only)"
+  },
+  "views": [
+    {
+      "view": "top_down",
+      "score": 5.5,
+      "evidence": "Six flower types read clearly (sunflower, daisy, coneflower, two lilies, cosmos). Petals have some tonal variation and the lily speckles and stamens are plausible, so the flowers hold up as stylized-realistic. The bee is a pale ~30-40px blob near the upper-left of the sunflower disc. Its head, wings, legs and banding cannot be told apart, so the 'visible anatomy' check fails in this view. Next to a disc only ~140px across, the bee is also too big: about 1/4 to 1/5 of the disc diameter, where a real honeybee on a sunflower would be about 1/12 to 1/15. The sunflower disc has a dithered, moire-like speckle and no clear phyllotactic spiral. The ground is a flat, blotchy green texture with sparse scattered grass blades. Large stem/leaf shadows fall across bare ground, but the heads show almost no visible stems or leaves, so the flowers look like they float over the cast shadows. Composition is an evenly spread specimen layout, not a natural planting. The UI overlays are fine.",
+      "imageSha256": "04fcdca25bf96d2d2f0c1e5f981b14f0fd9bd673ba624c935ed0a65223ab78f0"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 6,
+      "evidence": "Thorax fuzz is dense and believable, and the forewing shows thin dark venation with transparency. The orange corbicula pollen load on the hind leg is a nice touch. The disc florets read as rows of conical kernels with dark gaps and soft grazing light. Problems: the abdomen is a smooth peach/tan ellipsoid with fine stripe texture that looks like a snail shell or nut. It has no distinct dark/amber tergite bands and no segment step-downs, so honeybee identity is weak. The head is a dark sphere with oversized glossy black ellipsoid eyes that read as plastic, with no facet or hair texture. The antennae are straight, uniform black rods with no elbowed scape/flagellum and no taper. The legs are uniform thin brown cylinders with no visible femur/tibia/tarsus segmentation, tibial hairs or tarsal claws. The proboscis is a pale, untextured stick. The hindwing and far wing are blurry ghosts and the wing coupling isn't readable. Only about 3 legs are visible from this side. Petal materials in the background are good.",
+      "imageSha256": "56e111aaef6c0b6f58e7a9f6af21dbafd87ef3a8ff7d294f4a9a50d4db7318bc"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 5.5,
+      "evidence": "Front-on low angle. The head is a near-black sphere flanked by two huge glossy black ellipsoid eyes, a toy-like silhouette. The antennae are two straight sticks splayed in a V with no elbow joint. Three ocelli are visible as beads. The proboscis is a long, straight, pale rod running from below the head down into the floret field to about y=645. It reads as a dowel stuck into the disc, not a flexible glossa. Leg count: I can trace 4 legs from body to foot with confidence: left-front ending near (390,540), left-mid ending near (400,615), right-mid ending near (815,635), and right-hind with pollen ball ending near (880,565). The second hind leg (left pollen ball near 455,405) and the remaining front leg are hidden behind the head and the pollen loads. Their tarsi cannot be followed to the surface, so 4 of 6 are traceable and 2 are ambiguous. Foot contact is readable for those 4: each has a small dark contact shadow on the floret tips, with no obvious sinking. The body clears the disc with a visible gap and no gross body/flower intersection. The wings look plausible, semi-transparent with veins.",
+      "imageSha256": "39addbf6b3996d837a985ec5a77c47e1467f7c3ed4f54f1c59a9578a0351dd90"
+    },
+    {
+      "view": "wireframe",
+      "score": 5.5,
+      "evidence": "The meshes are clean, evenly tessellated UV-spheres and tubes with no tearing or extreme stretching, and the petal and floret shells read well. But the wireframe shows the bee is built from primitives: abdomen and thorax are two plain ellipsoids that interpenetrate at the waist with no petiole or modeled junction. The eye ellipsoids clearly intersect the head sphere. The antennae are straight cylinders. The legs are single-radius cylinders butted at joints with visible overlap at the knees. The hind-leg pollen basket is a separate floating-looking ellipsoid on the tibia. The far forewing/hindwing pair shows odd concentric curved interior edges that look like overlapping or self-intersecting wing planes. Leg count: about 4 legs traceable from body to foot (hind leg via the pollen ellipsoid to about (450,630), mid leg to about (560,700), another to about (740,735), and front leg to about (910,635)). A fifth stub near (880,560-580) is short and ambiguous, and the sixth is not visible. Tiny claw tips appear at the feet. Foot contacts are only partly readable: the dark floret field gives poor contrast, and it isn't clear whether the tarsi rest on the florets or hover above them.",
+      "imageSha256": "a974f4c736a8ff4b4ab53f8b2693d98fb01276e324f21900eff609260d920efc"
+    }
+  ],
+  "blockers": [
+    "top_down: the bee is an unreadable ~30-40px blob, so 'visible anatomy' and bee scale can't be assessed (framing/scale makes the required assessment impossible).",
+    "low_angle_anti_clip and wireframe: only about 4 of 6 legs can be traced from body to foot in each image, so six-leg support can't be verified.",
+    "Bee anatomy is built from untreated primitives: no petiole or waist junction, interpenetrating eye/head and thorax/abdomen ellipsoids, rod antennae with no elbow. These intersections are visible in the wireframe."
+  ],
+  "repairs": [
+    "1. Fix bee scale and top-down legibility. Shrink the bee to about 1/12-1/15 of the sunflower disc diameter (or enlarge the head). Frame the top_down camera so the bee spans enough pixels (at least ~120px) for head, wings, banding and legs to read. Raise contrast between the bee and the disc.",
+    "2. Make all six legs inspectable. Spread leg stance laterally (front legs forward, hind legs back and out) so each tarsus is visible from the low-angle and side cameras. Adjust the low_angle and wireframe camera yaw so pollen loads and the head don't hide the second hind leg and second front leg. Give each foot a clear contact (tarsal claw resting on floret tips plus a contact shadow).",
+    "3. Rebuild the abdomen as distinct banded tergites: alternating amber/brown and dark bands with slight step-downs and a hair fringe on each band edge, tapering to the tip. Remove the uniform shell-like stripe texture.",
+    "4. Model a narrow petiole/waist between thorax and abdomen, and blend or sculpt the eye-head junction so the primitives no longer interpenetrate. Give the compound eyes a subtle facet normal map, reduce specular, and use a dark brown tint.",
+    "5. Make the antennae elbowed: a short scape plus a ~10-segment flagellum angled forward-down, tapering slightly, with segment ridges.",
+    "6. Segment the legs (coxa, femur, tibia, basitarsus, tarsi) with tapering radii, smooth joints, hair on the tibia and basitarsus, and visible claws. Attach the pollen load as a concave basket mass on the hind tibia, not a separate ellipsoid.",
+    "7. Replace the proboscis rod with a thinner, slightly curved, tapered, darker glossa of plausible length, angled to touch a floret. Do not drive it deep into the disc.",
+    "8. Clean up the wing geometry: no overlapping or self-intersecting planes. Give the forewing and hindwing separate, readable vein patterns (marginal/submarginal cells), visibly coupled, with a slight iridescence and thinner edges.",
+    "9. Flowers and ground: give the sunflower disc a clean Fibonacci spiral with color grading from center to rim (no dithered moire from above). Show stems and leaves in the top-down view so the cast shadows match visible geometry. Add grass density, ground variation and a less uniform flower layout for a natural composition."
+  ]
+}
