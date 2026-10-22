@@ -26,8 +26,7 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site/assets
-          cp bee_scene.html _site/index.html
-          cp bee_scene.html bee_scene_standalone.html _site/
+          cp index.html bee_scene.html _site/
           cp -r vendor _site/
           cp assets/texture-data.js _site/assets/
       - uses: actions/configure-pages@v5

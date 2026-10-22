@@ -28,8 +28,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Scene bundling failed.' }
 $bundleText = [IO.File]::ReadAllText($bundlePath)
 $standalone = [regex]::Replace($sourceText, '(?s)<script type="importmap">.*?</script>', '')
 $standalone = [regex]::Replace($standalone, '(?s)<script type="module">.*?</script>', [Text.RegularExpressions.MatchEvaluator]{ param($match) '<script>' + $bundleText + '</script>' })
-$standalonePath = Join-Path $sceneRoot 'bee_scene_standalone.html'
-$stagedPath = Join-Path $sceneRoot ('bee_scene_standalone.' + [guid]::NewGuid().ToString('N') + '.tmp')
+$standalonePath = Join-Path $sceneRoot 'index.html'
+$stagedPath = Join-Path $sceneRoot ('index.' + [guid]::NewGuid().ToString('N') + '.tmp')
 $artifactPath = $standalonePath
 try {
     if (-not [IO.File]::Exists($standalonePath) -or [IO.File]::ReadAllText($standalonePath) -cne $standalone) {
