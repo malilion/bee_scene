@@ -537,13 +537,14 @@
       return { image, callbacks };
     }
     const petalAtlas = prepareAtlas(PETAL_ATLAS_DATA), materialAtlas = prepareAtlas(MATERIAL_ATLAS_DATA);
-    function applyAtlasTile(atlas, tile, map, bumpMap = null) {
+    function applyAtlasTile(atlas, tile, map, bumpMap = null, decorate = null) {
       const apply = () => {
         const image = atlas.image, size = 512;
         const col = tile % 3, row = Math.floor(tile / 3);
         const canvas = map.image; canvas.width = canvas.height = size;
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.drawImage(image, col * image.width / 3, row * image.height / 2, image.width / 3, image.height / 2, 0, 0, size, size);
+        if (decorate) decorate(ctx, size);
         map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); map.needsUpdate = true;
         if (bumpMap) {
           const bc = bumpMap.image; bc.width = bc.height = size;
@@ -866,7 +867,34 @@
 
     const glowTex = createGlowTexture();
     const abdomenTex = createRealisticAbdomenTextures();
-    applyAtlasTile(materialAtlas, 0, abdomenTex.colorMap, abdomenTex.bumpMap);
+    // Deepen the tergite banding of the scanned abdomen tile: amber plates, dark posterior
+    // margins and a pale hair fringe at each boundary (same boundaries as the geometry steps).
+    const tergiteBounds = [0.14, 0.31, 0.52, 0.70, 0.86];
+    applyAtlasTile(materialAtlas, 0, abdomenTex.colorMap, abdomenTex.bumpMap, (ctx, size) => {
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = '#c89660'; ctx.fillRect(0, 0, size, size);
+      // Lift the dark scan at the front of T1, which slopes down to the petiole.
+      ctx.globalCompositeOperation = 'screen';
+      const t1 = ctx.createLinearGradient(0, 0, 0, 0.12 * size);
+      t1.addColorStop(0, 'rgba(120,72,30,1)'); t1.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = t1; ctx.fillRect(0, 0, size, 0.12 * size);
+      ctx.globalCompositeOperation = 'multiply';
+      tergiteBounds.forEach((bound, i) => {
+        const width = i === 0 ? 0.035 : 0.075;
+        const band = ctx.createLinearGradient(0, (bound - width) * size, 0, bound * size);
+        band.addColorStop(0, 'rgba(255,255,255,1)'); band.addColorStop(0.45, '#6b4422'); band.addColorStop(1, '#2a180c');
+        ctx.fillStyle = band; ctx.fillRect(0, (bound - width) * size, size, width * size);
+      });
+      ctx.fillStyle = '#3a2414'; ctx.fillRect(0, 0.86 * size, size, 0.14 * size);
+      ctx.globalCompositeOperation = 'screen';
+      for (const bound of tergiteBounds) {
+        const fringe = ctx.createLinearGradient(0, bound * size, 0, (bound + 0.025) * size);
+        fringe.addColorStop(0, 'rgba(120,98,66,0.9)'); fringe.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = fringe; ctx.fillRect(0, bound * size, size, 0.025 * size);
+      }
+      ctx.restore();
+    });
     const ommatidiaTex = createOmmatidiaBumpTexture();
     const wingTex = createRealisticWingTexture();
     const leafTex = createLeafTexture();
@@ -1839,7 +1867,7 @@
       const geo = new THREE.LatheGeometry(profile, 64);
       // 旋轉使長度沿 -Z 軸延伸 (0 -> -0.92)
       geo.rotateX(-Math.PI / 2);
-      geo.scale(1.0, 0.86, 0.92);
+      geo.scale(0.84, 0.76, 1.0); // slender, tapering worker gaster rather than a round ball
 
       // 真實蜜蜂腹部：背面 (Dorsal Tergites) 圓拱飽滿、腹面 (Ventral Sternites) 略扁並自然微向下彎曲
       const pos = geo.attributes.position;
@@ -1847,13 +1875,16 @@
         let x = pos.getX(i);
         let y = pos.getY(i);
         let z = pos.getZ(i); // 0 ~ -0.92
-        const t = Math.abs(z) / 0.92;
+        const t = Math.abs(z);
         if (y < 0) {
           y *= 0.72; // 腹面扁平化
         }
-        // 加上每個背板節間的極細微環狀起伏 (Tergite segmentation)
-        const segRipple = 1.0 - Math.pow(Math.max(0, Math.cos(t * Math.PI * 12)), 14) * 0.018;
-        x *= segRipple;
+        // Overlapping tergites: each plate swells toward its posterior lip and the next
+        // starts tucked beneath it. Boundaries follow the hair fringes in the atlas tile.
+        let segStart = 0, segEnd = 1;
+        for (const bound of [0.14, 0.31, 0.52, 0.70, 0.86]) { if (t < bound) { segEnd = bound; break; } segStart = bound; }
+        const lip = 0.95 + 0.05 * Math.pow((t - segStart) / (segEnd - segStart), 0.7);
+        x *= lip; y *= lip;
         y -= Math.pow(t, 1.8) * 0.11; // 自然微垂曲線
         pos.setXYZ(i, x, y, z);
         geo.attributes.uv.setY(i, 1 - t);
@@ -1974,23 +2005,29 @@
         map: abdomenTex.colorMap,
         bumpMap: abdomenTex.bumpMap,
         bumpScale: 0.006,
-        roughness: 0.6,
+        roughness: 0.58,
         metalness: 0,
-        clearcoat: 0.16, // 幾丁質背板微亮角質層
-        clearcoatRoughness: 0.28,
-        sheen: 0.3,
+        clearcoat: 0.1, // 幾丁質背板微亮角質層
+        clearcoatRoughness: 0.32,
+        sheen: 0.12,
         sheenRoughness: 0.7,
-        sheenColor: new THREE.Color(0xffd175)
+        sheenColor: new THREE.Color(0xd9a960)
       });
+      // Compound eyes are dull grey-brown, faceted and finely hairy rather than glassy.
       const compoundEyeMat = new THREE.MeshPhysicalMaterial({
-        color: 0x110b08,
-        roughness: 0.26,
+        color: 0x2b241d,
+        roughness: 0.62,
         metalness: 0,
         bumpMap: ommatidiaTex,
-        bumpScale: 0.0018, // 真實六角形小眼面微距凹凸
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.08,
-        iridescence: 0.04
+        bumpScale: 0.004, // 真實六角形小眼面微距凹凸
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.4,
+        sheen: 0.35,
+        sheenRoughness: 0.55,
+        sheenColor: new THREE.Color(0x7d7468)
+      });
+      const ocellusMat = new THREE.MeshPhysicalMaterial({
+        color: 0x2a2018, roughness: 0.35, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.2
       });
       const pollenPelletMat = new THREE.MeshStandardMaterial({
         color: 0xffffff,
@@ -2010,25 +2047,32 @@
       headGroup.add(headMesh);
 
       // 兩側大型腎形/長橢圓複眼 (Compound Eyes)
-      const eyeGeo = new THREE.SphereGeometry(0.135, 20, 16);
-      eyeGeo.scale(0.55, 1.32, 0.82);
+      const eyeGeo = new THREE.SphereGeometry(0.135, 28, 20);
+      eyeGeo.scale(0.5, 1.3, 0.8);
+      // Flatten the inner face so each kidney-shaped eye sits into the head capsule.
+      const eyePos = eyeGeo.attributes.position;
+      for (let i = 0; i < eyePos.count; i++) if (eyePos.getX(i) < 0) eyePos.setX(i, eyePos.getX(i) * 0.35);
+      eyeGeo.computeVertexNormals();
+      const compoundEyes = [];
       for (const side of [-1, 1]) {
         const eye = new THREE.Mesh(eyeGeo, compoundEyeMat);
-        eye.position.set(side * 0.21, 0.03, 0.04);
+        eye.position.set(side * 0.185, 0.03, 0.035);
+        eye.scale.x = side;
         eye.rotation.z = -side * 0.18;
-        eye.rotation.y = side * 0.25;
+        eye.rotation.y = side * 0.3;
         headGroup.add(eye);
+        compoundEyes.push(eye);
       }
 
       // 頭頂倒三角形排列的 3 顆晶瑩單眼 (Ocelli)
-      const ocellusGeo = new THREE.SphereGeometry(0.024, 10, 10);
+      const ocellusGeo = new THREE.SphereGeometry(0.015, 10, 10);
       const ocelliCoords = [
         [0, 0.23, 0.05],
         [-0.045, 0.21, 0.08],
         [0.045, 0.21, 0.08]
       ];
       ocelliCoords.forEach(([ox, oy, oz]) => {
-        const oc = new THREE.Mesh(ocellusGeo, compoundEyeMat);
+        const oc = new THREE.Mesh(ocellusGeo, ocellusMat);
         oc.position.set(ox, oy, oz);
         headGroup.add(oc);
       });
@@ -2046,35 +2090,66 @@
       const proboscisPivot = new THREE.Group();
       proboscisPivot.position.set(0, -0.2, 0.1);
       proboscisPivot.rotation.x = 1.05; // Feeding glossa reaches down into the florets below the head.
-      // The glossa is a slender, pale amber tongue, unlike the dark chitin of the legs.
-      const glossaGeo = new THREE.CylinderGeometry(0.005, 0.015, 0.62, 10);
-      glossaGeo.rotateX(Math.PI / 2);
-      glossaGeo.translate(0, 0, 0.31);
-      const glossaMat = new THREE.MeshStandardMaterial({ color: 0xc89a5a, roughness: 0.5, metalness: 0 });
+      // A tapered, slightly curved amber glossa, sheathed at its base by the paired galeae.
+      const glossaSegments = 24;
+      const glossaCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -0.012, 0.31), new THREE.Vector3(0, -0.045, 0.62)]);
+      const glossaGeo = new THREE.TubeGeometry(glossaCurve, glossaSegments, 0.0095, 8, false);
+      const glossaPos = glossaGeo.attributes.position, ringCenter = new THREE.Vector3(), glossaPoint = new THREE.Vector3();
+      for (let i = 0; i < glossaPos.count; i++) {
+        const ring = Math.floor(i / 9);
+        glossaCurve.getPointAt(ring / glossaSegments, ringCenter);
+        glossaPoint.fromBufferAttribute(glossaPos, i).sub(ringCenter).multiplyScalar(1 - 0.62 * ring / glossaSegments).add(ringCenter);
+        glossaPos.setXYZ(i, glossaPoint.x, glossaPoint.y, glossaPoint.z);
+      }
+      glossaGeo.computeVertexNormals();
+      const glossaMat = new THREE.MeshStandardMaterial({ color: 0x6e4a26, roughness: 0.6, metalness: 0 });
       const glossaMesh = new THREE.Mesh(glossaGeo, glossaMat);
       proboscisPivot.add(glossaMesh);
+      for (const side of [-1, 1]) {
+        const galeaGeo = new THREE.CylinderGeometry(0.005, 0.013, 0.32, 8);
+        galeaGeo.rotateX(Math.PI / 2);
+        galeaGeo.scale(1, 0.55, 1);
+        galeaGeo.translate(side * 0.013, -0.003, 0.16);
+        proboscisPivot.add(new THREE.Mesh(galeaGeo, legChitinMat));
+      }
       proboscisPivot.scale.set(1, 1, 0.01);
       headGroup.add(proboscisPivot);
 
-      // 屈膝式雙節觸角 (Geniculate Antennae: Scape + Pedicel + 10-segmented Flagellum)
+      // 屈膝式觸角 (Geniculate Antennae)：臉部觸角窩 + 細長柄節 + 梗節 + 10 節漸細下垂的鞭節
+      const antennaMat = new THREE.MeshPhysicalMaterial({
+        color: 0x2a1c12, roughness: 0.62, metalness: 0, sheen: 0.25, sheenRoughness: 0.6, sheenColor: new THREE.Color(0x8a6a44)
+      });
       const antennaeList = [];
       for (const side of [-1, 1]) {
         const scapePivot = new THREE.Group();
-        scapePivot.position.set(side * 0.075, 0.06, 0.17);
+        scapePivot.position.set(side * 0.06, 0.04, 0.165);
         scapePivot.rotation.set(-0.25, side * 0.38, -side * 0.18);
+        scapePivot.add(new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), antennaMat)); // torulus socket
 
-        const scapeGeo = new THREE.CapsuleGeometry(0.018, 0.19, 6, 8);
-        scapeGeo.translate(0, 0.095, 0);
-        const scapeMesh = new THREE.Mesh(scapeGeo, legChitinMat);
+        const scapeGeo = new THREE.CylinderGeometry(0.0125, 0.016, 0.2, 10);
+        scapeGeo.translate(0, 0.1, 0);
+        const scapeMesh = new THREE.Mesh(scapeGeo, antennaMat);
 
         const flagellumPivot = new THREE.Group();
-        flagellumPivot.position.y = 0.19;
-        flagellumPivot.rotation.x = 1.15; // 真實蜜蜂觸角明顯的屈膝折角
-
-        const flagGeo = new THREE.CylinderGeometry(0.015, 0.018, 0.28, 8, 6);
-        flagGeo.translate(0, 0.14, 0);
-        const flagMesh = new THREE.Mesh(flagGeo, headChitinMat);
-        flagellumPivot.add(flagMesh);
+        flagellumPivot.position.y = 0.2;
+        flagellumPivot.rotation.x = 0.95; // 真實蜜蜂觸角明顯的屈膝折角
+        flagellumPivot.add(new THREE.Mesh(new THREE.SphereGeometry(0.0165, 10, 8), antennaMat)); // pedicel
+        let joint = flagellumPivot, offset = 0.012;
+        for (let s = 0; s < 10; s++) {
+          const length = s === 0 ? 0.036 : 0.032, radius = 0.0122 - s * 0.00025;
+          const segment = new THREE.Group();
+          segment.position.y = offset;
+          segment.rotation.x = s === 0 ? 0 : 0.035;
+          segment.rotation.z = s === 0 ? 0 : -side * 0.03; // flagellum arcs forward and outward, clear of the face
+          const segmentGeo = new THREE.CylinderGeometry(radius * 0.93, radius, length * 0.92, 8);
+          segmentGeo.translate(0, length * 0.46, 0);
+          segment.add(new THREE.Mesh(segmentGeo, antennaMat));
+          joint.add(segment); joint = segment; offset = length;
+        }
+        const antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.0095, 8, 6), antennaMat);
+        antennaTip.position.y = offset * 0.92;
+        joint.add(antennaTip);
 
         scapeMesh.add(flagellumPivot);
         scapePivot.add(scapeMesh);
@@ -2127,12 +2202,18 @@
       }
       addSetae(thoraxGroup, new THREE.Vector3(0.341, 0.332, 0.426), isCompanion ? 1300 : 11000, 0.051, 0xb59b72);
       addSetae(headGroup, new THREE.Vector3(0.247, 0.248, 0.162), isCompanion ? 400 : 2200, 0.023, 0x908878);
+      if (!isCompanion) compoundEyes.forEach(eye => addSetae(eye, new THREE.Vector3(0.0675, 0.1755, 0.108), 260, 0.009, 0x8a8172));
 
 
 
           // 3. 腹部關節階層 (Metasoma with Petiole & 6 Tergites)
+      // Narrow petiole (waist) between the propodeum and the first tergite.
+      const petiole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 0.11, 12), legChitinMat);
+      petiole.rotation.x = Math.PI / 2;
+      petiole.position.set(0, -0.005, -0.285);
+      beeModel.add(petiole);
       const abdomenGroup = new THREE.Group();
-      abdomenGroup.position.set(0, 0.01, -0.24);
+      abdomenGroup.position.set(0, 0.01, -0.31);
       abdomenGroup.rotation.x = -0.06;
       beeModel.add(abdomenGroup);
 
@@ -2144,9 +2225,12 @@
       for (let i = 0; i < (isCompanion ? 800 : 6000); i++) {
         const t = Math.random() * 0.82 + 0.08, angle = Math.random() * Math.PI * 2;
         const sample = sharedAbdomenGeo.attributes.position;
-        const row = Math.min(89, Math.round(t * 90)), col = Math.floor(angle / (Math.PI * 2) * 64);
-        const v = col * 91 + row;
-        const p = new THREE.Vector3().fromBufferAttribute(sample, v);
+        const row = Math.min(89, Math.floor(t * 90)), col = Math.min(63, Math.floor(angle / (Math.PI * 2) * 64));
+        // Scatter roots inside a lattice cell instead of on its vertices, so the hair has no grid.
+        const v = col * 91 + row, wu = Math.random(), wv = Math.random() * (1 - wu);
+        const p = new THREE.Vector3().fromBufferAttribute(sample, v).multiplyScalar(1 - wu - wv)
+          .add(new THREE.Vector3().fromBufferAttribute(sample, v + 91).multiplyScalar(wu))
+          .add(new THREE.Vector3().fromBufferAttribute(sample, v + 1).multiplyScalar(wv));
         const outward = new THREE.Vector3(p.x, p.y + t*t*0.11, 0).normalize();
         const len = 0.008 + Math.random() * 0.017;
         const q = p.clone().addScaledVector(outward, len).add(new THREE.Vector3(0, 0, -len * 0.5));
@@ -2157,12 +2241,12 @@
       const abHairGeo = new THREE.BufferGeometry();
       abHairGeo.setAttribute('position', new THREE.Float32BufferAttribute(abdominalHair,3));
       abHairGeo.setAttribute('color', new THREE.Float32BufferAttribute(abdominalColors,3));
-      abdomenGroup.add(new THREE.LineSegments(abHairGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.65})));
+      abdomenGroup.add(new THREE.LineSegments(abHairGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.5})));
 
       const stingerGeo = new THREE.ConeGeometry(0.022, 0.12, 8);
       stingerGeo.rotateX(-Math.PI / 2);
       const stingerMesh = new THREE.Mesh(stingerGeo, legChitinMat);
-      stingerMesh.position.set(0, -0.1, -0.94);
+      stingerMesh.position.set(0, -0.1, -1.02);
       // A worker keeps its sting retracted during ordinary foraging.
       stingerMesh.visible = false;
       abdomenGroup.add(stingerMesh);
@@ -2183,11 +2267,32 @@
           coxaPivot.rotation.y = -side * spec.yaw;
           coxaPivot.rotation.z = side * 0.58;
 
-          // 腿節 (Femur)
-          const femurGeo = new THREE.CylinderGeometry(0.027, 0.017, spec.femurLen, 10, 3);
-          femurGeo.translate(0, -spec.femurLen * 0.5, 0);
+          // 基節 (Coxa) fixed to the thorax underside, then a small trochanter at the femur root.
+          const coxaMesh = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), legChitinMat);
+          coxaMesh.scale.set(1, 1.3, 1.1);
+          coxaMesh.position.copy(coxaPivot.position);
+          beeModel.add(coxaMesh);
+
+          // 腿節 (Femur)：spindle-shaped, narrow at the trochanter, swelling, then tapering into the knee.
+          const femurGeo = new THREE.LatheGeometry([
+            new THREE.Vector2(0.001, 0), new THREE.Vector2(0.019, 0.012), new THREE.Vector2(0.027, spec.femurLen * 0.3),
+            new THREE.Vector2(0.024, spec.femurLen * 0.7), new THREE.Vector2(0.017, spec.femurLen * 0.97), new THREE.Vector2(0.001, spec.femurLen)
+          ], 10);
+          femurGeo.rotateX(Math.PI); // lathe grows along +Y; the femur hangs along -Y
           const femurMesh = new THREE.Mesh(femurGeo, legChitinMat);
           femurMesh.castShadow = true;
+          const trochanter = new THREE.Mesh(new THREE.SphereGeometry(0.021, 10, 8), legChitinMat);
+          trochanter.position.y = -0.014;
+          femurMesh.add(trochanter);
+          const femurBristles = [];
+          for (let j = 0; j < 18; j++) {
+            const along = 0.2 + Math.random() * 0.7, a = Math.random() * Math.PI * 2, r = 0.024;
+            const bx = Math.cos(a) * r, bz = Math.sin(a) * r, by = -along * spec.femurLen;
+            femurBristles.push(bx, by, bz, bx * 1.6, by - 0.012 - Math.random() * 0.01, bz * 1.6);
+          }
+          const femurBristleGeo = new THREE.BufferGeometry();
+          femurBristleGeo.setAttribute('position', new THREE.Float32BufferAttribute(femurBristles, 3));
+          femurMesh.add(new THREE.LineSegments(femurBristleGeo, new THREE.LineBasicMaterial({ color: 0x8c6e40, transparent: true, opacity: 0.55 })));
 
           // 脛節樞紐 (Tibia Pivot)
           const tibiaPivot = new THREE.Group();
@@ -2216,6 +2321,7 @@
             const length=segment===0?0.075:0.019;
             const radius=(idx===2?0.017:0.012)*(1-segment*0.14);
             const g=new THREE.CylinderGeometry(radius,radius*0.72,length*0.93,8);
+            if(idx===2&&segment===0)g.scale(1.55,1,0.7); // broad, flattened hind basitarsus (pollen brush)
             const part=new THREE.Mesh(g,legChitinMat);part.position.y=-jointY-length/2;
             basitarsusMesh.add(part);jointY+=length;
           }
@@ -2227,7 +2333,7 @@
             basitarsusMesh.add(new THREE.Mesh(new THREE.TubeGeometry(curve,6,0.0032,5,false),legChitinMat));
           }
           tarsusPivot.add(basitarsusMesh);
-          const knee=new THREE.Mesh(new THREE.SphereGeometry(idx===2?0.025:0.020,10,8),legChitinMat);
+          const knee=new THREE.Mesh(new THREE.SphereGeometry(idx===2?0.017:0.014,10,8),legChitinMat);
           tibiaPivot.add(knee);
           const bristles=[];
           for(let j=0;j<26;j++) {
@@ -3133,7 +3239,7 @@
       beeState.mode = 'FORAGING';
       beeState.targetFlowerIdx = f0.index;
       beeState.pollenLoad = 2.6;
-      beeState.proboscisExt = 0.36;
+      beeState.proboscisExt = 0.3;
       updateStatsUI();
 
       // 先給定降落參考點，再由花面法線與足部求解器調整實際姿態。
@@ -3141,7 +3247,7 @@
       bee.root.up.set(0, 1, 0);
       bee.root.lookAt(exactCoreTop.x + 0.5, exactCoreTop.y + 0.18, exactCoreTop.z - 0.2);
       bee.model.rotation.set(0.14, 0, 0);
-      bee.proboscis.scale.z = 0.36;
+      bee.proboscis.scale.z = 0.3;
       bee.wingBlur.forEach(sample=>{sample.group.visible=false;});
       bee.wingMaterial.opacity=0.58;
       bee.leftWing.rotation.set(0.02, 1.22, 0.15);
@@ -3376,7 +3482,7 @@
         bee.model.rotation.z = THREE.MathUtils.lerp(bee.model.rotation.z, 0, 0.18);
         bee.model.rotation.x = THREE.MathUtils.lerp(bee.model.rotation.x, 0.16, 0.18);
 
-        beeState.proboscisExt = THREE.MathUtils.lerp(beeState.proboscisExt, 0.36, 0.18);
+        beeState.proboscisExt = THREE.MathUtils.lerp(beeState.proboscisExt, 0.3, 0.18);
 
         if (Math.random() < 0.035) {
           triggerPollenBurst(liveCorePos, 1, 0xc4a75c);
@@ -3557,7 +3663,7 @@
       bee.antennae.forEach((ant) => {
         ant.group.rotation.x =
           ant.baseRotX + Math.sin(elapsed * (isHighFreq ? 18 : 8) + ant.side) * 0.1;
-        ant.flagellum.rotation.x = 1.15 + Math.cos(elapsed * 12 + ant.side) * 0.08;
+        ant.flagellum.rotation.x = 0.95 + Math.cos(elapsed * 12 + ant.side) * 0.08;
       });
 
       bee.legs.forEach((leg) => {

@@ -1,0 +1,48 @@
+{
+  "roundId": "2026-10-22T12-45-12Z-claude-r4",
+  "reviewer": {
+    "role": "independent-adversarial-critic",
+    "engine": "Claude subagent (read-only, images and rubric only)"
+  },
+  "views": [
+    {
+      "view": "top_down",
+      "score": 6.5,
+      "evidence": "The flowers read well from above. The sunflower has two-tone ray petals and a brown disk, and the daisy, echinacea, cosmos and two lilies (one spotted pink, one white with yellow midstripes and red anthers) have believable silhouettes and colour variation. The bee fails the 'bee/flower scale and visible anatomy' requirement: it is a small, low-contrast, washed-out tan smudge (about 50px) at the upper-left of the sunflower disk. Head, thorax, abdomen, wings and legs cannot be told apart, and it blends into the disk's dotted texture. The sunflower disk shows a strong fine-grain moire/aliasing pattern (gold-black dither ring), not a phyllotaxis spiral. Huge dark shadows from off-frame plants (a sunflower-like rosette top-left, leaf blobs at left-centre) take up much of the left half and make the composition feel cluttered and unbalanced. The ground is a blotchy, low-frequency mottled green with scattered sticker-like grass flecks, and the low-res tiling reads as a texture, not turf. Stems are barely visible, so the flowers look like they float on the ground plane.",
+      "imageSha256": "9c6b12a544c18477a5a24d059079a3efa243015bab5ad4542ce29d3c5d66be4a"
+    },
+    {
+      "view": "macro_closeup",
+      "score": 7.5,
+      "evidence": "Strengths: the thorax has dense fuzzy hair. The abdomen has segment banding with fine hair and a warm amber tint. The near forewing is thin and translucent with readable venation. A pollen load on the hind tibia is a nice touch, and there are soft contact shadows under the feet. Weaknesses: the head is a smooth, glossy black blob with one huge featureless compound eye and no visible facets, clypeus or mandible detail, so it reads as a toy. The antennae are thick, uniformly black tubes with no scape/flagellum elbow subtlety. The abdomen is too orange, saturated and evenly rounded, more like a bumblebee or hoverfly than Apis mellifera, which has darker brown bands and a lighter, narrower tapering gaster. The second (far) wing is a large blurred grey plane hovering above the thorax, detached-looking and unconvincing. Only 3-4 legs are visible and the front legs are hard to identify. A thin orange spike under the head (proboscis) looks like a stray stick. The sunflower disk florets are uniform pale cream, flat-shaded cones in a perfectly regular grid. Real disk florets are brown/purple-black with a yellow outer ring, and the plastic-teeth look badly hurts realism. The ray petals in the background are good.",
+      "imageSha256": "ac71db8530b7187a736852ac4291df68820a72fd559f18e55185baf75a47cc70"
+    },
+    {
+      "view": "low_angle_anti_clip",
+      "score": 6.5,
+      "evidence": "The frontal low view shows a large dark spherical head that dominates the frame. Three glossy bead ocelli on top plus a hooked right antenna curling down across the face form a cartoon 'face' (eyes plus smile). The compound eyes are dark side shells rather than large faceted ovals. The right antenna bends down unnaturally along the face, almost lying on it. The orange proboscis drops vertically into the florets as a thin rod; no clear penetration is visible, but it is ambiguous. Legs: I can trace 4 of 6 legs from body to foot: left fore and left mid ending near (395,615) and (385,535), right fore and right mid ending near (815,635) and (880,565). The hind pair is only partly visible: pollen corbiculae show at both sides (455,410 and 830,420), but their tarsi are hidden behind the body/florets and cannot be traced to a foot. The four visible feet have small soft contact shadows on the floret tips, so their contact is readable. The visible legs are very long and splayed wide, which gives a spider-like stance and makes the body look suspended high above the disk. The wings are translucent with veins, but the far wing shows through the thorax hair in a slightly flat, card-like way. Florets have the same cream, uniform plastic-cone problem.",
+      "imageSha256": "443edea9c3eab8c20c14c9ee5042b4fe0b53f4c5d59d10ba7b056179b806ab37"
+    },
+    {
+      "view": "wireframe",
+      "score": 7,
+      "evidence": "Mesh continuity is generally intact. The petals are dense, smooth quad/tri grids, the thorax is a dense shaded mesh, the head is a clean ellipsoid with a separate eye shell, and the leg segments are continuous tubes with ball joints. Problems: the abdomen renders as a near-perfect sphere, wider than the thorax and with no tapering. The proportions look like a bumblebee or a balloon, not a honeybee. The near forewing wireframe has curved internal edge loops sweeping across it, and the upper (far) wing shows an odd crescent-shaped inner loop, which suggests stretched or awkward triangulation on the thin wing geometry. The near wing plane slices visually straight through the abdomen sphere, and from this angle it is unclear whether the wing passes through it or above it. Legs: I can trace 4 of 6 legs to feet in this side view: the hind leg with the pollen ellipsoid (foot near 450,630), the mid leg (foot near 560,700), another leg (foot near 740,735), and the fore leg under the head (foot near 900,635). The contralateral legs are hidden behind the body and cannot be traced. The hind femur is a horizontal rod ending in a knob mid-air before the tibia drops, which reads as a mechanical joint. The feet end at the floret tips, but against the dark floret field the contact is only marginally readable. The floret field and petals stay legible, but the dark olive shading makes the whole scene murky.",
+      "imageSha256": "970956cc11df9c153d129445aaefa2d0a4ad0db5029fe4a2d39bdf89124acbb9"
+    }
+  ],
+  "blockers": [
+    "top_down: the bee is an unreadable low-contrast smudge on the sunflower disk, so this view cannot assess bee/flower scale or visible anatomy.",
+    "low_angle_anti_clip: only 4 of 6 legs can be traced to feet. Both hind tarsi are hidden, so six-leg contact support cannot be verified from this view.",
+    "Cartoon-style bee head (glossy bead ocelli plus an antenna hooked across the face reading as a smiley face) breaks the realistic-honeybee requirement in the low-angle and macro views."
+  ],
+  "repairs": [
+    "1. Recolour and reshape the sunflower disk: dark brown/purple-black disk florets in a visible Fibonacci phyllotaxis spiral, a yellow-green ring of open florets at the rim, size/height jitter, and no flat cream cones. Fix the top-down moire with mipmapped/filtered textures or by lowering the frequency of the instanced detail.",
+    "2. Make the bee legible in top_down: improve its contrast against the disk (darker abdomen bands, lighter wing sheen), make sure it is not washed out or fogged, and frame or zoom so that head, thorax, abdomen and wings are clearly separate.",
+    "3. Rework the bee head: large faceted kidney-shaped compound eyes on the sides, small matte ocelli (not glossy beads), a visible clypeus and mandibles, and less overall gloss. Elbowed antennae with a short scape and a flagellum pointing forward/out, not hooked down across the face.",
+    "4. Fix honeybee proportions and colours: a narrower, tapered, slightly elongated abdomen (not a sphere), amber-brown tergites with dark brown bands and pale hair bands, and less saturated orange.",
+    "5. Legs: shorten and fold the legs into a natural crouched stance with the body closer to the disk. Pose the hind legs so their tarsi visibly reach the surface beside the abdomen in the low-angle and side views. Use tapered segments with subtle joints instead of ball knobs. Add tarsal segments and claws.",
+    "6. Wings: the far wing must not appear as a blurred card floating above the thorax. Keep both wings as thin, flat, veined membranes with forewing/hindwing coupling, cleanly triangulated without curved stretch loops, and positioned above, not through, the abdomen.",
+    "7. Make the proboscis a short, folded or slightly extended, segmented brown glossa, not a long straight orange rod.",
+    "8. Top-down composition: reduce or soften the large off-frame shadows on the left, add visible stems/leaves under each flower, and replace the blotchy low-res ground with higher-frequency grass/soil detail."
+  ]
+}
