@@ -26,8 +26,6 @@ npx serve -l 8765 .
 
 然後開啟 <http://localhost:8765/bee_scene.html>（或 `/index.html`）。
 
-**線上版**：推送到 `main`（預設分支）後，GitHub Actions 會發佈到 <https://malilion.github.io/bee_scene/>（設定方式見 [GitHub Pages](#github-pages)）。
-
 ## 截圖展示
 
 | 蜂體微距 | 低角度足部支撐 |
@@ -35,8 +33,6 @@ npx serve -l 8765 .
 | ![蜂體微距](docs/screenshots/macro_closeup.jpg) | ![低角度](docs/screenshots/low_angle_anti_clip.jpg) |
 | **線框檢視** | **花朵俯視** |
 | ![線框](docs/screenshots/wireframe.jpg) | ![俯視](docs/screenshots/top_down.jpg) |
-
-以上為四視角評審流程實際擷取的瀏覽器渲染畫面（1280×960）。
 
 ## 操作方式
 
@@ -77,57 +73,23 @@ npx serve -l 8765 .
 
 可以玩的方式：點擊指定要拜訪的花、關掉「自動循環」手動推進每個階段、拖動時間軸看清晨到黃昏的光線、或切到第一人稱跟著蜜蜂飛。
 
-## 渲染技術
+## 使用技術
 
-- **引擎**：Three.js 0.160.0（WebGL），以 ES 模組載入；離線版用 esbuild 打包成單一 HTML。
-- **材質**：PBR `MeshStandardMaterial`／`MeshPhysicalMaterial`，胸毛與花瓣使用 sheen 絨面光澤，腹部幾丁質用 clearcoat，蜂蠟與蜂蜜使用 transmission 透光。底色來自兩張 AI 生成的材質圖集（花瓣、蜂體與葉片），以 WebP data URI 內嵌於 `assets/texture-data.js`。
-- **光照**：程序化 PMREM 環境反射、半球光、太陽平行光與補光；PCF 柔和陰影；ACES Filmic 色調映射、sRGB 輸出、指數霧。日照時間以關鍵影格插值光色、方向與曝光。
-- **後製**：`EffectComposer` → `RenderPass` → `UnrealBloomPass`（可開關）→ `BokehPass`（微距景深）→ `OutputPass`。景深的深度階段會排除透明物件（薄翅、介面圓環、粒子），避免它們遮住對焦。
-- **幾何**：花、蜂、蜂巢全為程序化建模。花盤小花以 137.5° 黃金角（費馬螺線）排列；草地 11,500 片、遠景樹葉 18,000 片、花盤小花都使用 `InstancedMesh`。
-- **動畫**：飛行路徑使用 Catmull-Rom 曲線；降落時以花面坡度決定身體傾角，再分別求解六足關節；飛行時收足、接近花朵時伸足；薄翅以低透明度取樣殘影呈現快速拍動。
-- **診斷視角**：網址加上 `?view=top_down|macro_closeup|low_angle_anti_clip|wireframe&flower=0-5` 可直接切到固定檢驗視角，供自動截圖與評審使用。
+- **Three.js 0.160.0**（WebGL）。花、蜜蜂與蜂巢全部以程式程序化建模。
+- PBR 材質、日照變化、柔和陰影、可開關的柔和高光（Bloom）與微距景深。
 
 ## 專案結構
 
 ```
 .
-├── index.html                  # 單一離線版（建置輸出，可直接開啟）
-├── bee_scene.html              # 可編輯的模組版來源（需 HTTP 伺服器）
-├── build-scene.ps1             # 建置＋四視角評審循環；-BundleOnly 只打包
-├── download-three.ps1          # 下載 Three.js 附加模組
-├── AGENTS.md                   # 給 AI 代理的視覺驗收規則
-├── assets/                     # 材質圖集（PNG 原檔、WebP）、texture-data.js、生成提示詞
-├── vendor/three/               # Three.js 0.160.0 與使用的附加模組（MIT）
-├── docs/screenshots/           # README 截圖
-├── backups/                    # bee_scene.html 各階段備份
-├── .buildtools/                # esbuild、截圖／評審／行為驗證腳本
-├── .quality/                   # 評審流程（WORKFLOW.md）、報告、各輪截圖與評分
-└── .github/workflows/pages.yml # GitHub Pages 發佈
+├── index.html          # 單一離線版（建置輸出，可直接開啟）
+├── bee_scene.html      # 可編輯的模組版來源（需 HTTP 伺服器）
+├── assets/             # 材質圖集、texture-data.js、生成提示詞
+├── vendor/three/       # Three.js 0.160.0 與使用的附加模組（MIT）
+└── docs/screenshots/   # README 截圖
 ```
 
-**開發流程**：修改 `bee_scene.html` 或 `assets/` 後，執行 `./build-scene.ps1` 重新產生 `index.html`。它會擷取俯視、蜂體特寫、低角度、線框四張圖交給獨立評審，**每張都須 ≥ 9/10** 才算通過，未通過會自動修正並重評（預設最多 3 輪，`-MaxRounds 6` 可調整）。需要 Node、Playwright、Chrome 與已登入的 Codex CLI；詳見 [.quality/WORKFLOW.md](.quality/WORKFLOW.md)，報告在 [.quality/report.html](.quality/report.html)。目前視覺驗收尚未通過；最新狀態、各視角得分與阻擋問題請見 `.quality/latest.json` 及報告，歷輪證據保留於 `.quality/rounds/`。
-
-行為驗證：`.buildtools/verify-scene.cjs` 會跑三組隨機場景、十八項花面站姿與九分鐘模擬循環，結果輸出到 `previews/refinement/`。
-
-**macOS / Linux**：可直接用 Node 執行相同的建置、四視角擷取與獨立評審循環：
-
-```bash
-# esbuild、playwright 須可從 PATH / NODE_PATH 找到，也可明確指定。
-export ESBUILD_BINARY=/path/to/esbuild
-export NODE_PATH=/path/to/node_modules
-export CHROME_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-node .buildtools/quality-loop.cjs --max-rounds=3
-node .buildtools/verify-scene.cjs
-```
-
-`node .buildtools/bundle-scene.cjs` 僅打包離線版，不代表視覺驗收通過。
-
-## GitHub Pages
-
-`.github/workflows/pages.yml` 會在推送到 `main`（預設分支）時發佈 `index.html`、`bee_scene.html`、`vendor/` 與 `assets/texture-data.js`。第一次使用前：
-
-1. 免費帳號的私人儲存庫不能使用 Pages，需先在 **Settings → General → Change visibility** 改為公開（或使用 GitHub Pro）。
-2. **Settings → Pages → Build and deployment → Source** 選擇 **GitHub Actions**，再到 Actions 重新執行工作流程。
+**重新產生 `index.html`**：修改 `bee_scene.html` 或 `assets/` 後，執行 `./build-scene.ps1 -BundleOnly`（Windows），或在 `PATH` 上有 esbuild（或設定 `ESBUILD_BINARY`）時執行 `node .buildtools/bundle-scene.cjs`，重新打包離線版。
 
 ## 授權與來源
 
